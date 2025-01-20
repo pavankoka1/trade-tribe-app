@@ -1,11 +1,16 @@
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeProvider } from "@/context/ThemeContext";
-import { createStaticNavigation } from "@react-navigation/native";
+import { useEffect } from "react";
+import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
+import loadFonts from "@/styles/fonts";
+import { tokenCache } from "@/utils/cache";
+import * as SecureStore from "expo-secure-store";
+import * as SplashScreen from "expo-splash-screen";
 import "@/global.css";
 import "@/styles/index.css";
-import { useEffect } from "react";
-import loadFonts from "@/styles/fonts";
+
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 export default function RootLayout() {
     useEffect(() => {
@@ -16,17 +21,23 @@ export default function RootLayout() {
     }, []);
 
     return (
-        <ThemeProvider>
-            <SafeAreaProvider>
-                <Stack screenOptions={{ headerShown: false }}>
-                    <Stack.Screen
-                        name="index"
-                        options={{
-                            title: "Koka Portfolio",
-                        }}
-                    />
-                </Stack>
-            </SafeAreaProvider>
-        </ThemeProvider>
+        <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+            <ClerkLoaded>
+                <ThemeProvider>
+                    <SafeAreaProvider>
+                        <Stack screenOptions={{ headerShown: false }}>
+                            <Stack.Screen
+                                name="index"
+                                options={{ title: "Koka Portfolio" }}
+                            />
+                            <Stack.Screen
+                                name="redirect"
+                                options={{ title: "Koka Portfolio" }}
+                            />
+                        </Stack>
+                    </SafeAreaProvider>
+                </ThemeProvider>
+            </ClerkLoaded>
+        </ClerkProvider>
     );
 }

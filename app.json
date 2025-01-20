@@ -1,7 +1,7 @@
 {
     "expo": {
-        "name": "Portfolio App",
-        "slug": "PortfolioApp",
+        "name": "Trade Tribe App",
+        "slug": "TradeTribeApp",
         "version": "1.0.0",
         "orientation": "portrait",
         "icon": "./assets/images/icon.png",
@@ -10,7 +10,7 @@
         "newArchEnabled": true,
         "assetBundlePatterns": ["**/*"],
         "ios": {
-            "bundleIdentifier": "com.koka.portfolio",
+            "bundleIdentifier": "com.trade.tribe",
             "buildNumber": "1.0.0",
             "supportsTablet": true
         },
@@ -19,7 +19,7 @@
                 "foregroundImage": "./assets/logos/pikachu-working-icon.png",
                 "backgroundColor": "#1d212d"
             },
-            "package": "com.pavankoka1.portfolio"
+            "package": "com.pavankoka1.tradetribe"
         },
         "description": "We don't just build apps, we build trust!",
         "web": {

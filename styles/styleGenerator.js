@@ -21,16 +21,16 @@ const typography = {
         48: 48,
     },
     fontWeights: {
-        eb: "Montserrat-ExtraBold",
-        b: "Montserrat-Bold",
-        sb: "Montserrat-SemiBold",
-        m: "Montserrat-Medium",
-        r: "Montserrat-Regular",
-        t: "Montserrat-Thin",
+        eb: "Manrope-ExtraBold",
+        b: "Manrope-Bold",
+        sb: "Manrope-SemiBold",
+        m: "Manrope-Medium",
+        r: "Manrope-Regular",
+        t: "Manrope-Thin",
+        et: "Manrope-ExtraThin",
     },
     fontFamilies: {
-        mont: "Montserrat", // Reference here, actual names defined in global.css or applied through styling method
-        denton: "Denton", // Optional: Add more fonts as needed
+        man: "Manrope",
     },
 };
 

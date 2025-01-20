@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
     Button,
     Platform,
@@ -7,79 +7,86 @@ import {
     Text,
     View,
     Dimensions,
+    Modal,
+    TextInput,
 } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
-import LogoIcon from "@/icons/LogoIcon";
-import TilesBgIcon from "@/icons/TilesBgIcon";
-import dynamicStyles from "@/styles/styleGenerator";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import Summary from "@/components/home/Summary";
-import Benefits from "@/components/home/Benefits";
-import JugglingList from "@/components/home/JugglingList";
-import ConcentricCircles from "@/components/home/ConcentricCircles";
-import RadialAnimation from "@/components/home/RadialAnimation";
+import * as Linking from "expo-linking";
+import * as WebBrowser from "expo-web-browser";
+import { useSignIn, useAuth, useOAuth } from "@clerk/clerk-expo";
 
 const { height, width } = Dimensions.get("window");
 
+export const useWarmUpBrowser = () => {
+    useEffect(() => {
+        const warmUpBrowser = async () => {
+            if (Platform.OS !== "web") {
+                await WebBrowser.warmUpAsync();
+            }
+        };
+
+        warmUpBrowser();
+
+        return () => {
+            if (Platform.OS !== "web") {
+                void WebBrowser.coolDownAsync();
+            }
+        };
+    }, []);
+};
+
+WebBrowser.maybeCompleteAuthSession();
+
 const App = () => {
-    const [benefitsYPosition, setBenefitsYPosition] = useState(0);
-    const [isBenefitsVisible, setIsBenefitsVisible] = useState(false);
+    useWarmUpBrowser();
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleBenefitsLayout = (event) => {
-        const { y } = event.nativeEvent.layout;
-        setBenefitsYPosition(y);
-    };
+    const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
+    const { signIn } = useSignIn();
+    const { isSignedIn } = useAuth();
 
-    const handleScroll = (event) => {
-        const scrollY = event.nativeEvent.contentOffset.y;
+    const onSocialLoginPress = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const response = await signIn.authenticateWithRedirect({
+                strategy: "oauth_google",
+                redirectUrl: "/redirect",
+                redirectUrlComplete: "/",
+            });
 
-        // Check if the Benefits component is in view
-        const isInView =
-            scrollY + height * 0.6 >= benefitsYPosition &&
-            scrollY < benefitsYPosition + 400; // Adjust 400 based on the height of Benefits component
-        setIsBenefitsVisible(isInView);
-    };
+            const user = response.user;
+            console.log("OAuth response:", response);
+        } catch (err) {
+            console.error("Error during OAuth flow:", err.message || err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
     return (
         <SafeAreaProvider>
-            <SafeAreaView className="bg-[#231F20] w-screen h-screen overflow-y-scroll">
-                <ScrollView onScroll={handleScroll} scrollEventThrottle={16}>
+            <SafeAreaView
+                style={{ flex: 1, backgroundColor: "#231F20", padding: 20 }}
+            >
+                <ScrollView scrollEventThrottle={16}>
                     <StatusBar
                         backgroundColor="#231F20"
                         barStyle="light-content"
                     />
-                    <View className="relative bg-[#e9e9e5] pt-14 mt-2 rounded-t-[40px] h-fit">
-                        <Summary />
-                        {/* Add onLayout event to detect when Benefits comes into view */}
-                        <View onLayout={handleBenefitsLayout}>
-                            <Benefits isVisible={isBenefitsVisible} />
-                        </View>
-                        <View className="mt-24 px-6 pb-24">
-                            <Text
-                                style={dynamicStyles["mont-r-32"]}
-                                className="text-[#231f20] tracking-tight leading-[48px]"
-                            >
-                                Our Software
-                            </Text>
-                            <Text
-                                style={dynamicStyles["mont-r-32"]}
-                                className="text-[#231f20] tracking-tight leading-[48px]"
-                            >
-                                development services
-                            </Text>
-                            <Text
-                                style={dynamicStyles["mont-r-18"]}
-                                className="mt-6 text-[#525252] leading-8"
-                            >
-                                We offer both mobile and web app development and
-                                consulting services to help you realize your
-                                app.
-                            </Text>
-                        </View>
-                    </View>
-                    <JugglingList />
-                    <ConcentricCircles />
-                    <RadialAnimation />
+                    <Text
+                        style={{
+                            color: "white",
+                            fontSize: 24,
+                            marginBottom: 20,
+                        }}
+                    >
+                        Landing Page
+                    </Text>
+                    {isSignedIn ? (
+                        <Button title="Logout" onPress={() => signOut()} />
+                    ) : (
+                        <Button title="Log in" onPress={onSocialLoginPress} />
+                    )}
                 </ScrollView>
             </SafeAreaView>
         </SafeAreaProvider>
