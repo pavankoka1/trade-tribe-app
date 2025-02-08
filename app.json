@@ -1,11 +1,11 @@
 {
     "expo": {
         "name": "Trade Tribe App",
-        "slug": "TradeTribeApp",
+        "slug": "trade-tribe-app",
         "version": "1.0.0",
         "orientation": "portrait",
         "icon": "./assets/images/icon.png",
-        "scheme": "myapp",
+        "scheme": "tradetribe",
         "userInterfaceStyle": "automatic",
         "newArchEnabled": true,
         "assetBundlePatterns": ["**/*"],
@@ -19,7 +19,40 @@
                 "foregroundImage": "./assets/logos/pikachu-working-icon.png",
                 "backgroundColor": "#1d212d"
             },
-            "package": "com.pavankoka1.tradetribe"
+            "package": "com.pavankoka1.tradetribe",
+            "intentFilters": [
+                {
+                    "action": "VIEW",
+                    "data": [
+                        {
+                            "scheme": "tradetribe"
+                        }
+                    ],
+                    "category": ["BROWSABLE", "DEFAULT"]
+                }
+            ]
+            // "intentFilters": [
+            //     {
+            //         "action": "VIEW",
+            //         "data": {
+            //             "scheme": "com.pavankoka1.tradetribe.auth0",
+            //             "host": "dev-ejfqnjn20ph3kzag.us.auth0.com",
+            //             "pathPrefix": "/android/com.pavankoka1.tradetribe/callback"
+            //         },
+            //         "category": ["BROWSABLE", "DEFAULT"]
+            //     }
+            // ]
+            // "intentFilters": [
+            //     {
+            //         "action": "VIEW",
+            //         "data": {
+            //             "scheme": "myapp",
+            //             "host": "auth",
+            //             "pathPrefix": "/callback"
+            //         },
+            //         "category": ["BROWSABLE", "DEFAULT"]
+            //     }
+            // ]
         },
         "description": "We don't just build apps, we build trust!",
         "web": {
@@ -37,7 +70,8 @@
                     "resizeMode": "contain",
                     "backgroundColor": "#1d212d"
                 }
-            ]
+            ],
+            ["./plugins/withCustomScheme.js"]
         ],
         "experiments": {
             "typedRoutes": true
@@ -47,7 +81,7 @@
                 "origin": false
             },
             "eas": {
-                "projectId": "9d8deaa7-ecb3-40a0-abb1-236dc07452f1"
+                "projectId": "5a95fe34-17db-42e9-ad8d-1a7b72be05ed"
             }
         },
         "owner": "pavankoka1"

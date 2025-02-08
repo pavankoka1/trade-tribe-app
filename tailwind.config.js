@@ -9,8 +9,18 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: "#f2f2f2",
-                secondary: "#020202",
+                primary: {
+                    light: "#ddf88b",
+                    main: "#b4ef02",
+                    dark: "#80aa01",
+                    contrast: "#000000",
+                },
+                secondary: {
+                    light: "#af91fa",
+                    main: "#875bf7",
+                    dark: "#6041af",
+                    contrast: "#000000",
+                },
             },
             fontSize: {
                 8: "8px",

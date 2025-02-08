@@ -3,15 +3,16 @@ import {
     View,
     Modal,
     TouchableWithoutFeedback,
-    StyleSheet,
     Animated,
     Pressable,
 } from "react-native";
 import PropTypes from "prop-types";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import CloseIcon from "@/icons/CloseIcon"; // Adjust the import path as necessary
+import { Easing } from "react-native"; // Import Easing
 
 const BottomSheet = ({
     isOpen,
+    className,
     onClose,
     children,
     closeOnOverlayClick = true,
@@ -24,13 +25,15 @@ const BottomSheet = ({
             setIsVisible(true);
             Animated.timing(translateY, {
                 toValue: 0,
-                duration: 300,
+                duration: 400, // Duration for opening
+                easing: Easing.out(Easing.cubic), // Easing function for smoother opening
                 useNativeDriver: true,
             }).start();
         } else {
             Animated.timing(translateY, {
                 toValue: 300,
-                duration: 300,
+                duration: 300, // Duration for closing
+                easing: Easing.in(Easing.quad), // Easing function for smoother closing
                 useNativeDriver: true,
             }).start(() => setIsVisible(false));
         }
@@ -50,17 +53,16 @@ const BottomSheet = ({
             onRequestClose={onClose}
         >
             <TouchableWithoutFeedback onPress={handleOverlayClick}>
-                <View style={styles.overlay}>
+                <View className="flex-1 justify-end bg-[#161616] bg-opacity-50">
                     <Animated.View
-                        style={[styles.sheet, { transform: [{ translateY }] }]}
+                        style={[{ transform: [{ translateY }] }]}
+                        className={`bg-[#161616] w-full rounded-t-lg pt-5 px-4 shadow-lg ${className}`}
                     >
-                        <Pressable onPress={onClose} style={styles.closeIcon}>
-                            <MaterialCommunityIcons
-                                name="close"
-                                size={24}
-                                color="#010101"
-                                selectable={undefined}
-                            />
+                        <Pressable
+                            onPress={onClose}
+                            className="absolute top-4 right-4"
+                        >
+                            <CloseIcon />
                         </Pressable>
                         {children}
                     </Animated.View>
@@ -76,35 +78,5 @@ BottomSheet.propTypes = {
     children: PropTypes.node,
     closeOnOverlayClick: PropTypes.bool,
 };
-
-const styles = StyleSheet.create({
-    overlay: {
-        flex: 1,
-        justifyContent: "flex-end",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-    },
-    sheet: {
-        backgroundColor: "white",
-        width: "100%",
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        paddingVertical: 20,
-        paddingHorizontal: 15,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: -3,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
-        elevation: 5,
-    },
-    closeIcon: {
-        position: "absolute",
-        top: 15,
-        right: 15,
-        cursor: "pointer",
-    },
-});
 
 export default BottomSheet;
