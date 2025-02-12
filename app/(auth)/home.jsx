@@ -4,25 +4,10 @@ import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import TrendingScreen from "@/components/home/TrendingScreen";
 import TrendingIcon from "@/icons/TrendingIcon"; // Import your custom icons
 import ForYouIcon from "@/icons/ForYouIcon"; // Import your custom icons
+import ForYouScreen from "@/components/home/ForYouScreen";
 
 // Screen dimensions
 const { width } = Dimensions.get("window");
-
-const ForYouScreen = () => (
-    <View
-        style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "#161616",
-        }}
-    >
-        <Text style={{ color: "white", fontSize: 18 }}>For You Content</Text>
-        <Text style={{ color: "gray", marginTop: 8 }}>
-            This is the personalized section.
-        </Text>
-    </View>
-);
 
 // Map the routes to their respective components
 const renderScene = SceneMap({

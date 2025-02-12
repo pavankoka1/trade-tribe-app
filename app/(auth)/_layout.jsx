@@ -14,6 +14,7 @@ import PersonIcon from "@/icons/PersonIcon";
 import API_PATHS from "@/network/apis";
 import generateQueryParams from "@/utils/generateQueryParams";
 import { HEADERS_KEYS } from "@/network/constants";
+import replacePlaceholders from "@/utils/replacePlaceholders";
 
 const CustomBottomNavigation = () => {
     const router = useRouter();
@@ -39,23 +40,23 @@ const CustomBottomNavigation = () => {
 
     async function handleAuthentication() {
         const userId = await SecureStore.getItemAsync(HEADERS_KEYS.USER_ID);
+        const token = await SecureStore.getItemAsync(HEADERS_KEYS.TOKEN);
         const url = await generateQueryParams(API_PATHS.getUsersByParams, {
             id: userId,
         });
 
-        // network
-        //     .get(
-        //         generateQueryParams(API_PATHS.getUsersByParams, { id: userId })
-        //     )
-        //     .then((res) => {
-        //         console.log(res);
-        //     })
-        //     .catch(async () => {
-        //         await SecureStore.deleteItemAsync(HEADERS_KEYS.TOKEN);
-        //         await SecureStore.deleteItemAsync(HEADERS_KEYS.REFRESH_TOKEN);
-        //         await SecureStore.deleteItemAsync(HEADERS_KEYS.USER_ID);
-        //         router.replace("/redirect");
-        //     });
+        network
+            .get(replacePlaceholders(API_PATHS.getUserById, userId))
+            .then((res) => {
+                console.log(res);
+                console.log(token);
+            })
+            .catch(async () => {
+                await SecureStore.deleteItemAsync(HEADERS_KEYS.TOKEN);
+                await SecureStore.deleteItemAsync(HEADERS_KEYS.REFRESH_TOKEN);
+                await SecureStore.deleteItemAsync(HEADERS_KEYS.USER_ID);
+                router.replace("/redirect");
+            });
     }
 
     const handleTabPress = (tabName) => {

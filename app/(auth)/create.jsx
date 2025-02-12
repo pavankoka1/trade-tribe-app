@@ -10,36 +10,51 @@ import ImageUploader from "@/components/ImageUploader";
 import MultiSelectSearch from "@/components/MultiSelectSearch";
 import PersonIcon from "@/icons/PersonIcon";
 import useGetUsers from "@/hooks/useGetUsers";
+import clsx from "clsx";
+import * as SecureStore from "expo-secure-store";
+import { HEADERS_KEYS } from "@/network/constants";
+import network from "@/network";
+import API_PATHS from "@/network/apis";
 
 const Create = () => {
     const navigation = useNavigation();
     const [text, setText] = useState("");
     const [tags, setTags] = useState([]);
+    const [images, setImages] = useState([]);
 
     const { searchText, users, setSearchText } = useGetUsers();
+
+    console.log(tags, images);
+
+    function handleSubmit() {
+        const userId = SecureStore.getItem(HEADERS_KEYS.USER_ID);
+        network
+            .post(API_PATHS.createPost, {
+                userId,
+                content: text,
+                mediaUrls: images.map((img) => img.key),
+                taggedUserIdList: tags.map((tag) => tag.id),
+            })
+            .then((res) => {
+                console.log(res);
+                router.replace("/(auth)/home");
+            })
+            .catch((err) => console.error(err.message));
+    }
 
     return (
         <View className="flex-1 px-4 bg-[#161616] py-5 gap-4">
             <View className="flex flex-row items-center">
                 <TouchableOpacity
                     className="items-center justify-center"
-                    onPress={() => {
-                        console.log("pressed");
-                        router.replace("/(auth)/home");
-                    }}
+                    onPress={handleSubmit}
                 >
                     <CloseIcon />
                 </TouchableOpacity>
                 <Text className="font-manrope-bold text-16 text-white tracking-wide ml-6 leading-[20px] mr-auto text-center">
                     Create New post
                 </Text>
-                <Button
-                    className="ml-auto mr-3"
-                    onPress={() => {
-                        console.log("pressed");
-                        router.replace("/");
-                    }}
-                >
+                <Button className="ml-auto mr-3" onPress={handleSubmit}>
                     Post Now
                 </Button>
             </View>
@@ -67,7 +82,7 @@ const Create = () => {
                     onChangeText={setText} // Use onChangeText for TextInput
                 />
             </View>
-            <ImageUploader>
+            <ImageUploader images={images} setImages={setImages}>
                 <View className="flex flex-row items-center gap-2">
                     <ImageIcon />
                     <Text className="font-manrope text-12 text-[#b1b1b1] leading-1">
@@ -85,8 +100,15 @@ const Create = () => {
             >
                 <View className="flex flex-row items-center gap-2">
                     <PersonIcon color="#b1b1b1" size={18} />
-                    <Text className="font-manrope text-12 text-[#b1b1b1] leading-1">
-                        Use @ to mention a user
+                    <Text
+                        className={clsx("font-manrope text-12 leading-1", {
+                            "text-[#b1b1b1]": !tags.length,
+                            "text-white": !!tags.length,
+                        })}
+                    >
+                        {tags.length
+                            ? tags.map((tag) => "@" + tag.nickname).join(", ")
+                            : "Use @ to mention a user"}
                     </Text>
                 </View>
             </MultiSelectSearch>

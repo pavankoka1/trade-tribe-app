@@ -13,9 +13,8 @@ import API_PATHS from "@/network/apis";
 import * as SecureStore from "expo-secure-store";
 import { HEADERS_KEYS } from "@/network/constants";
 
-const ImageUploader = ({ children }) => {
+const ImageUploader = ({ children, images, setImages }) => {
     const userId = SecureStore.getItem(HEADERS_KEYS.USER_ID);
-    const [images, setImages] = useState([]);
 
     const handleImagePick = () => {
         const options = {
@@ -50,6 +49,7 @@ const ImageUploader = ({ children }) => {
                     network
                         .uploadFile(API_PATHS.uploadFile, image, userId)
                         .then((response) => {
+                            console.log(response);
                             // console.log("Upload successful", response);
                             setImages((prev) =>
                                 prev.map((img) =>
@@ -57,6 +57,7 @@ const ImageUploader = ({ children }) => {
                                         ? {
                                               ...img,
                                               key: response.key,
+                                              publicUrl: response.publicUrl,
                                               uploading: false,
                                           } // Set uploading to false on success
                                         : img

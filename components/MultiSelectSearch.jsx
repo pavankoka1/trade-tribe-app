@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Image } from "react-native";
 import BottomSheet from "./BottomSheet"; // Adjust the import path as necessary
 import { TextInput } from "react-native-paper";
 import clsx from "clsx";
@@ -23,40 +23,44 @@ const MultiSelectSearch = ({
 
     // Render each item in the list
     const renderItem = ({ item }) => {
-        const isSelected = selectedItems.includes(item.id);
+        const isSelected = selectedItems
+            .map((prev) => prev.id)
+            .includes(item.id);
         return (
             <TouchableOpacity
                 className={clsx([
-                    {
-                        "border-primary-main": isSelected,
-                        "border-white": !isSelected,
-                    },
-                    "p-3 py-4 flex-row justify-between items-center border-b w-full flex",
+                    "py-2 flex-row gap-3 items-center border-b w-full flex border-[#1F2023]",
                 ])}
                 onPress={() => {
                     setSelectedItems((prev) => {
-                        if (prev.includes(item.id)) {
+                        if (prev.map((prev) => prev.id).includes(item.id)) {
                             return prev.filter(
-                                (selected) => selected !== item.id
+                                (selected) => selected.id !== item.id
                             );
                         } else {
-                            return [...prev, item.id];
+                            return [...prev, item];
                         }
                     });
                 }}
             >
+                <Image
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                    source={{ uri: item.profilePictureUrl }}
+                />
                 <Text
                     className={clsx([
-                        "font-manrope-medium text-14",
+                        "font-manrope-medium text-14 leading-none",
                         {
                             "text-primary-main": isSelected,
                             "text-white": !isSelected,
                         },
                     ])}
                 >
-                    {item.name}
+                    @{item.nickname}
                 </Text>
-                {isSelected && <TickIcon color="#b4ef04" />}
+                {/* {isSelected && <TickIcon color="#b4ef04" />} */}
             </TouchableOpacity>
         );
     };
@@ -104,7 +108,7 @@ const MultiSelectSearch = ({
                     <FlatList
                         data={data}
                         renderItem={renderItem}
-                        keyExtractor={(item) => item}
+                        keyExtractor={(item) => item.id}
                     />
                 </View>
             </BottomSheet>
