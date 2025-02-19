@@ -9,6 +9,7 @@ import {
 import React, { useEffect, useRef, useCallback } from "react";
 import useFeeds from "@/hooks/useFeeds";
 import FeedPost from "./FeedPost";
+import { Button } from "react-native-paper";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -56,6 +57,24 @@ const ForYouScreen = () => {
         return <FeedPost item={item} />;
     }, []);
 
+    if (!forYouFeeds.length && !isFetchingForYou) {
+        return (
+            <View className="flex-1 flex-col justify-center items-center">
+                <Text className="text-[#B1B1B1] font-manrope-bold text-16 mb-1">
+                    No Posts for you so far
+                </Text>
+                <Text className="text-white font-manrope text-14">
+                    Please search & follow the users to get the feed
+                </Text>
+                <Button
+                    className="bg-primary-main text-[#292929] font-manrope-bold text-10 py-2 px-4 rounded-xl"
+                    onPress={onRefresh}
+                    label="Refresh"
+                />
+            </View>
+        );
+    }
+
     return (
         <View className="flex-1 bg-[#161616]">
             <FlatList
@@ -77,9 +96,6 @@ const ForYouScreen = () => {
                         refreshing={refreshing}
                         onRefresh={onRefresh}
                     />
-                }
-                ListFooterComponent={
-                    loading ? <ActivityIndicator size="large" /> : null
                 }
                 initialNumToRender={10} // Render 10 items initially
                 windowSize={5} // Number of items to render outside the viewport

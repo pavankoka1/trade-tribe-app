@@ -1,5 +1,5 @@
 import { View, Text, Image, Dimensions } from "react-native";
-import React from "react";
+import React, { useRef } from "react";
 import VerifiedIcon from "@/icons/VerifiedIcon";
 import moment from "moment";
 import ThumbIcon from "@/icons/ThumbIcon";
@@ -8,13 +8,38 @@ import SendIcon from "@/icons/SendIcon";
 import BookmarkIcon from "@/icons/BookmarkIcon";
 import ThreeDotsIcon from "@/icons/ThreeDotsIcon";
 import Carousel from "react-native-reanimated-carousel";
+import { useSharedValue } from "react-native-reanimated";
 import PostsLoader from "./PostsLoader";
+import { renderItem } from "@/utils/rendeItem";
+import { useAdvancedSettings } from "@/hooks/useSettings";
+import { SlideItem } from "../SlideItem";
+import useUserStore from "@/hooks/useUserStore";
 
 const FeedPost = ({ item }) => {
     if (!item) return <PostsLoader />;
 
+    const carouselRef = useRef(null);
+    const progress = useSharedValue(0);
     const images = item.postDetails.mediaUrls;
     const screenWidth = Dimensions.get("window").width;
+
+    const { followers } = useUserStore();
+
+    const { advancedSettings, onAdvancedSettingsChange } = useAdvancedSettings({
+        // These values will be passed in the Carousel Component as default props
+        defaultSettings: {
+            autoPlay: false,
+            autoPlayInterval: 2000,
+            autoPlayReverse: false,
+            data: images,
+            height: 258,
+            loop: true,
+            pagingEnabled: true,
+            snapEnabled: true,
+            vertical: false,
+            width: screenWidth - 32,
+        },
+    });
 
     return (
         <View className="py-6 px-4 border-b border-[2px] border-[#1F2023]">
@@ -32,9 +57,11 @@ const FeedPost = ({ item }) => {
                         </Text>
                         <VerifiedIcon />
                         <View className="mx-2 h-1 w-1 rounded-full bg-[#b1b1b1]" />
-                        <Text className="text-primary-main font-manrope-bold text-14 leading-none h-[14px]">
-                            Follow
-                        </Text>
+                        {!followers.includes(item.postAuthorDetails.id) ? (
+                            <Text className="text-primary-main font-manrope-bold text-14 leading-none h-[14px]">
+                                Follow
+                            </Text>
+                        ) : null}
                     </View>
                     <View className="flex flex-row items-center">
                         <Text className="font-manrope text-10 text-[#26F037]">
@@ -59,31 +86,35 @@ const FeedPost = ({ item }) => {
                 </Text>
             )}
             {images?.length ? (
-                <View className="overflow-hidden w-full mt-4">
+                <View
+                    className="overflow-hidden w-full mt-4"
+                    dataSet={{ kind: "basic-layouts", name: "parallax" }}
+                >
                     <Carousel
-                        loop
-                        width={screenWidth - 32} // Set the width of the carousel based on screen width
-                        height={250} // Adjust height as needed
-                        autoPlay={false} // Whether to auto scroll
-                        data={images} // Array of image URLs
-                        renderItem={({ item }) => (
-                            <Image
-                                source={{ uri: item }}
-                                resizeMode="cover" // Adjust to your needs
-                                className="rounded-2xl"
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    // borderRadius: 20,
-                                    overflow: "hidden",
-                                }} // Ensure the image fills the carousel
+                        autoPlayInterval={2000}
+                        data={images}
+                        height={220}
+                        loop={true}
+                        pagingEnabled={true}
+                        snapEnabled={true}
+                        width={screenWidth - 32}
+                        style={{
+                            width: screenWidth - 32,
+                        }}
+                        mode="parallax"
+                        modeConfig={{
+                            parallaxScrollingScale: 0.9,
+                            parallaxScrollingOffset: 50,
+                        }}
+                        onProgressChange={progress}
+                        renderItem={({ item, index }) => (
+                            <SlideItem
+                                source={item}
+                                key={index}
+                                index={index}
+                                rounded={true}
                             />
                         )}
-                        style={{
-                            borderRadius: "100px",
-                        }}
-                        pagingEnabled={false}
-                        animationType="slide"
                     />
                 </View>
             ) : null}
@@ -97,8 +128,7 @@ const FeedPost = ({ item }) => {
                 <View className="flex flex-row items-center mr-auto">
                     <MessageIcon />
                     <Text className="font-manrope-medium text-12 text-white ml-1 mr-auto">
-                        {item.postDetails.commentsCount}{" "}
-                        {/* Assuming you want to show comments count */}
+                        {item.postDetails.commentsCount}
                     </Text>
                 </View>
                 <SendIcon />

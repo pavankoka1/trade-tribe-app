@@ -53,7 +53,8 @@ export default function AnimatedTabComponent() {
                         contentContainerStyle={{ elevation: 0 }}
                     />
                 )}
-                swipeEnabled={true} // Disable swipe until native modules work
+                swipeEnabled={false}
+                lazy
             />
         </View>
     );

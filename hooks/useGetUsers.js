@@ -30,7 +30,6 @@ function useGetUsers() {
                 })
             )
             .then((res) => {
-                console.log(res);
                 setUsers(res);
             })
             .catch((err) => {

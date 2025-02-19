@@ -1,10 +1,10 @@
 {
     "expo": {
-        "name": "Trade Tribe App",
+        "name": "Wagmee",
         "slug": "trade-tribe-app",
         "version": "1.0.0",
         "orientation": "portrait",
-        "icon": "./assets/images/icon.png",
+        "icon": "./assets/images/login/arrow.png",
         "scheme": "tradetribe",
         "userInterfaceStyle": "automatic",
         "newArchEnabled": true,
@@ -16,8 +16,8 @@
         },
         "android": {
             "adaptiveIcon": {
-                "foregroundImage": "./assets/logos/pikachu-working-icon.png",
-                "backgroundColor": "#1d212d"
+                "foregroundImage": "./assets/images/login/arrow.png",
+                "backgroundColor": "#161616"
             },
             "package": "com.pavankoka1.tradetribe",
             "intentFilters": [
@@ -58,17 +58,17 @@
         "web": {
             "bundler": "metro",
             "output": "static",
-            "favicon": "./assets/images/favicon.png"
+            "favicon": "./assets/images/login/arrow.png"
         },
         "plugins": [
             "expo-router",
             [
                 "expo-splash-screen",
                 {
-                    "image": "./assets/logos/pikachu-working-icon.png",
+                    "image": "./assets/images/login/arrow.png",
                     "imageWidth": 200,
                     "resizeMode": "contain",
-                    "backgroundColor": "#1d212d"
+                    "backgroundColor": "#161616"
                 }
             ],
             ["./plugins/withCustomScheme.js"]

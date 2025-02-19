@@ -5,6 +5,10 @@ const API_PATHS = {
     uploadFile: "/api/v1/media/upload",
     createPost: "/api/v1/posts",
     getFeed: "/api/v1/feed/{0}",
+    getFollowers: "api/v1/followers/followers/{0}",
+    getFollowing: "api/v1/followers/following/{0}",
+    unfollow: "/api/v1/followers/{0}/{1}",
+    follow: "/api/v1/followers",
 };
 
 export default API_PATHS;

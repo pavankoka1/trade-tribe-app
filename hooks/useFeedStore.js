@@ -65,7 +65,7 @@ const useFeedStore = create((set, get) => ({
             return; // Prevent concurrent calls and stop if no more feeds
         }
 
-        set({ loadingForYou: true, isFetchingForYou: true });
+        set({ loadingForYou: true, isFetchingForYou: true, error: null });
         try {
             const userId = await SecureStore.getItemAsync(HEADERS_KEYS.USER_ID);
             const response = await network.get(

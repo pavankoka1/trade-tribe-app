@@ -15,12 +15,15 @@ import API_PATHS from "@/network/apis";
 import generateQueryParams from "@/utils/generateQueryParams";
 import { HEADERS_KEYS } from "@/network/constants";
 import replacePlaceholders from "@/utils/replacePlaceholders";
+import useUserStore from "@/hooks/useUserStore";
 
 const CustomBottomNavigation = () => {
     const router = useRouter();
     const pathname = usePathname();
     const [activeTab, setActiveTab] = useState("home");
     const [animation] = useState(new Animated.Value(1));
+
+    const { setUserDetails, setFollowing } = useUserStore();
 
     useEffect(() => {
         handleAuthentication();
@@ -41,15 +44,13 @@ const CustomBottomNavigation = () => {
     async function handleAuthentication() {
         const userId = await SecureStore.getItemAsync(HEADERS_KEYS.USER_ID);
         const token = await SecureStore.getItemAsync(HEADERS_KEYS.TOKEN);
-        const url = await generateQueryParams(API_PATHS.getUsersByParams, {
-            id: userId,
-        });
 
         network
             .get(replacePlaceholders(API_PATHS.getUserById, userId))
             .then((res) => {
                 console.log(res);
                 console.log(token);
+                setUserDetails(res);
             })
             .catch(async () => {
                 await SecureStore.deleteItemAsync(HEADERS_KEYS.TOKEN);
@@ -57,15 +58,22 @@ const CustomBottomNavigation = () => {
                 await SecureStore.deleteItemAsync(HEADERS_KEYS.USER_ID);
                 router.replace("/redirect");
             });
+
+        network
+            .get(replacePlaceholders(API_PATHS.getFollowing, userId))
+            .then((res) => {
+                setFollowing(res);
+            });
     }
 
     const handleTabPress = (tabName) => {
-        // Start the animation
+        // Start the fade-out animation
         Animated.timing(animation, {
             toValue: 0, // Fade out
             duration: 200,
             useNativeDriver: true,
         }).start(() => {
+            // Change the active tab and route after fade-out
             setActiveTab(tabName);
             router.replace(`/(auth)/${tabName}`);
             // Fade in after changing the tab

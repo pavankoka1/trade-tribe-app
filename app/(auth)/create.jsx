@@ -1,8 +1,8 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ToastAndroid } from "react-native";
 import React, { useState } from "react";
 import CloseIcon from "@/icons/CloseIcon";
 import { router } from "expo-router";
-import { Button } from "react-native-paper";
+import { ActivityIndicator, Button } from "react-native-paper";
 import { TextInput } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import ImageIcon from "@/icons/ImageIcon";
@@ -18,18 +18,19 @@ import API_PATHS from "@/network/apis";
 
 const Create = () => {
     const navigation = useNavigation();
+
+    const [loading, setLoading] = useState(false);
     const [text, setText] = useState("");
     const [tags, setTags] = useState([]);
     const [images, setImages] = useState([]);
 
     const { searchText, users, setSearchText } = useGetUsers();
 
-    console.log(tags, images);
-
     function handleSubmit() {
         const userId = SecureStore.getItem(HEADERS_KEYS.USER_ID);
-        if (!content || !images.length) return null;
+        if (!text && !images.length) return null;
 
+        setLoading(true);
         network
             .post(API_PATHS.createPost, {
                 userId,
@@ -38,15 +39,24 @@ const Create = () => {
                 taggedUserIdList: tags.map((tag) => tag.id),
             })
             .then((res) => {
-                console.log(res);
+                setLoading(false);
                 router.replace("/(auth)/home");
             })
-            .catch((err) => console.error(err.message));
+            .catch((err) => {
+                setLoading(false);
+                ToastAndroid.showWithGravityAndOffset(
+                    err.message,
+                    ToastAndroid.LONG,
+                    ToastAndroid.TOP,
+                    25,
+                    50
+                );
+            });
     }
 
     return (
         <View className="flex-1 px-4 bg-[#161616] py-5 gap-4">
-            <View className="flex flex-row items-center">
+            <View className="flex flex-row items-center h-10">
                 <TouchableOpacity
                     className="items-center justify-center"
                     onPress={() => router.replace("/(auth)/home")}
@@ -56,9 +66,14 @@ const Create = () => {
                 <Text className="font-manrope-bold text-16 text-white tracking-wide ml-6 leading-[20px] mr-auto text-center">
                     Create New post
                 </Text>
-                <Button className="ml-auto mr-3" onPress={handleSubmit}>
-                    Post Now
-                </Button>
+
+                {loading ? (
+                    <ActivityIndicator size={16} className="ml-auto mr-10" />
+                ) : (
+                    <Button className="ml-auto mr-3" onPress={handleSubmit}>
+                        Post Now
+                    </Button>
+                )}
             </View>
             <View className="flex flex-row items-center ml-[2px]">
                 <View className="h-6 bg-primary-main w-[2px]" />

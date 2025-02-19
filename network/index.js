@@ -1,10 +1,11 @@
 import generateRandomString from "@/utils/generateRandomString";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+import { ToastAndroid } from "react-native"; // Import ToastAndroid
 
 const axiosInstance = axios.create({
     baseURL: process.env.EXPO_PUBLIC_API_DOMAIN,
-    timeout: 30000, // Increased timeout
+    timeout: 30000,
     headers: {
         "Content-Type": "application/json",
     },
@@ -31,34 +32,75 @@ axiosInstance.interceptors.response.use(
         if (error.response) {
             switch (error.response.status) {
                 case 401:
-                    console.error("Unauthorized: Please log in again.");
+                    ToastAndroid.showWithGravityAndOffset(
+                        "Unauthorized: Please log in again.",
+                        ToastAndroid.LONG,
+                        ToastAndroid.TOP,
+                        25,
+                        50
+                    );
                     break;
                 case 403:
-                    console.error(
-                        "Forbidden: You do not have permission to access this resource."
+                    ToastAndroid.showWithGravityAndOffset(
+                        "Forbidden: You do not have permission to access this resource.",
+                        ToastAndroid.LONG,
+                        ToastAndroid.TOP,
+                        25,
+                        50
                     );
                     break;
                 case 404:
-                    console.error(
-                        "Not Found: The requested resource does not exist."
+                    ToastAndroid.showWithGravityAndOffset(
+                        "Not Found: The requested resource does not exist.",
+                        ToastAndroid.LONG,
+                        ToastAndroid.TOP,
+                        25,
+                        50
                     );
                     break;
                 case 500:
-                    console.error(
-                        "Server Error: Something went wrong on the server."
+                    ToastAndroid.showWithGravityAndOffset(
+                        "Server Error: Something went wrong on the server.",
+                        ToastAndroid.LONG,
+                        ToastAndroid.TOP,
+                        25,
+                        50
                     );
                     break;
                 default:
-                    console.error("An error occurred:", error.message);
+                    ToastAndroid.showWithGravityAndOffset(
+                        "An error occurred: " + error.message,
+                        ToastAndroid.LONG,
+                        ToastAndroid.TOP,
+                        25,
+                        50
+                    );
             }
         } else if (error.request) {
-            console.error("No response received:", error.request);
+            ToastAndroid.showWithGravityAndOffset(
+                "No response received: " + error.request,
+                ToastAndroid.LONG,
+                ToastAndroid.TOP,
+                25,
+                50
+            );
         } else {
-            console.error("Request setup error:", error.message);
+            ToastAndroid.showWithGravityAndOffset(
+                "Request setup error: " + error.message,
+                ToastAndroid.LONG,
+                ToastAndroid.TOP,
+                25,
+                50
+            );
         }
         return Promise.reject(error);
     }
 );
+
+// Function to set a new base URL
+const setBaseURL = (newBaseURL) => {
+    axiosInstance.defaults.baseURL = newBaseURL;
+};
 
 const network = {
     get: async (url, params = {}) => {
@@ -95,11 +137,11 @@ const network = {
     },
     uploadFile: async (url, file, userId) => {
         const formData = new FormData();
-        formData.append("userId", userId); // Add userId to form data
+        formData.append("userId", userId);
         formData.append("media", {
             uri: file.uri,
-            type: file.type || "image/jpeg", // Default to jpeg if type not provided
-            name: generateRandomString(16), // Default filename
+            type: file.type || "image/jpeg",
+            name: generateRandomString(16),
         });
         try {
             const response = await axiosInstance.post(url, formData, {
@@ -112,6 +154,7 @@ const network = {
             throw error;
         }
     },
+    setBaseURL, // Expose the method to set a new base URL
 };
 
 export default network;
