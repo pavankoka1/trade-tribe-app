@@ -1,61 +1,74 @@
-import React, { useState } from "react";
-import { View, Text, Dimensions } from "react-native";
-import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import React from "react";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { View, Text } from "react-native";
 import TrendingScreen from "@/components/home/TrendingScreen";
-import TrendingIcon from "@/icons/TrendingIcon"; // Import your custom icons
-import ForYouIcon from "@/icons/ForYouIcon"; // Import your custom icons
 import ForYouScreen from "@/components/home/ForYouScreen";
+import TrendingIcon from "@/icons/TrendingIcon";
+import ForYouIcon from "@/icons/ForYouIcon";
 
-// Screen dimensions
-const { width } = Dimensions.get("window");
+const Tab = createMaterialTopTabNavigator();
 
-// Map the routes to their respective components
-const renderScene = SceneMap({
-    trending: TrendingScreen,
-    forYou: ForYouScreen,
-});
-
-// Modified component with safe view handling
 export default function AnimatedTabComponent() {
-    const [index, setIndex] = useState(0);
-    const [routes] = useState([
-        { key: "trending", title: "Trending" },
-        { key: "forYou", title: "For You" },
-    ]);
-
-    const renderScene = ({ route }) => {
-        switch (route.key) {
-            case "trending":
-                return <TrendingScreen />;
-            case "forYou":
-                return <ForYouScreen />;
-            default:
-                return null;
-        }
-    };
-
     return (
         <View className="flex-1 bg-[#161616]">
-            <TabView
-                navigationState={{ index, routes }}
-                renderScene={renderScene}
-                onIndexChange={setIndex}
-                initialLayout={{ width }}
-                renderTabBar={(props) => (
-                    <TabBar
-                        {...props}
-                        indicatorStyle={{
-                            backgroundColor: "#b4ef02",
-                            height: 3,
-                        }}
-                        style={{ backgroundColor: "transparent" }}
-                        labelStyle={{ color: "white" }}
-                        contentContainerStyle={{ elevation: 0 }}
-                    />
-                )}
-                swipeEnabled={false}
-                lazy
-            />
+            <Tab.Navigator
+                screenOptions={{
+                    // Styling for tab bar
+                    tabBarStyle: {
+                        backgroundColor: "#161616",
+                        elevation: 0,
+                        borderBottomWidth: 0,
+                        paddingTop: 12,
+                        paddingBottom: 12,
+                    },
+                    // Indicator styling
+                    tabBarIndicatorStyle: {
+                        backgroundColor: "#b4ef02",
+                        height: 3,
+                    },
+                    // Icon colors
+                    tabBarActiveTintColor: "#b4ef02",
+                    tabBarInactiveTintColor: "#666666",
+                    // Hide labels
+                    tabBarShowLabel: false,
+                    // Disable swipe
+                    swipeEnabled: false,
+                    // Icon container styling
+                    tabBarIconStyle: {
+                        width: 24,
+                        height: 24,
+                    },
+                }}
+            >
+                <Tab.Screen
+                    name="trending"
+                    component={TrendingScreen}
+                    options={{
+                        tabBarIcon: ({ color }) => (
+                            <Text
+                                className="text-14 font-manrope-bold"
+                                style={{ color: color }}
+                            >
+                                Trending
+                            </Text>
+                        ),
+                    }}
+                />
+                <Tab.Screen
+                    name="for-you"
+                    component={ForYouScreen}
+                    options={{
+                        tabBarIcon: ({ color }) => (
+                            <Text
+                                className="text-14 font-manrope-bold"
+                                style={{ color: color }}
+                            >
+                                For You
+                            </Text>
+                        ),
+                    }}
+                />
+            </Tab.Navigator>
         </View>
     );
 }

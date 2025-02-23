@@ -7,7 +7,7 @@ import MessageIcon from "@/icons/MessageIcon";
 import SendIcon from "@/icons/SendIcon";
 import BookmarkIcon from "@/icons/BookmarkIcon";
 import ThreeDotsIcon from "@/icons/ThreeDotsIcon";
-import Carousel from "react-native-reanimated-carousel";
+import Carousel, { Pagination } from "react-native-reanimated-carousel";
 import { useSharedValue } from "react-native-reanimated";
 import PostsLoader from "./PostsLoader";
 import { renderItem } from "@/utils/rendeItem";
@@ -85,27 +85,19 @@ const FeedPost = ({ item }) => {
                     {item.postDetails.content}
                 </Text>
             )}
+
             {images?.length ? (
-                <View
-                    className="overflow-hidden w-full mt-4"
-                    dataSet={{ kind: "basic-layouts", name: "parallax" }}
-                >
+                <View className="w-full mt-4">
                     <Carousel
+                        ref={carouselRef}
                         autoPlayInterval={2000}
                         data={images}
                         height={220}
-                        loop={true}
+                        loop={images.length > 1}
                         pagingEnabled={true}
                         snapEnabled={true}
                         width={screenWidth - 32}
-                        style={{
-                            width: screenWidth - 32,
-                        }}
-                        mode="parallax"
-                        modeConfig={{
-                            parallaxScrollingScale: 0.9,
-                            parallaxScrollingOffset: 50,
-                        }}
+                        style={{ width: screenWidth - 32 }}
                         onProgressChange={progress}
                         renderItem={({ item, index }) => (
                             <SlideItem
@@ -116,6 +108,31 @@ const FeedPost = ({ item }) => {
                             />
                         )}
                     />
+
+                    {images.length > 1 && (
+                        <Pagination.Basic
+                            progress={progress}
+                            length={images.length}
+                            data={images}
+                            containerStyle={{
+                                position: "relative",
+                                alignSelf: "center",
+                                marginBottom: 10,
+                                marginTop: 16,
+                            }}
+                            dotStyle={{
+                                width: 25,
+                                height: 4,
+                                backgroundColor: "#b1b1b1",
+                                marginHorizontal: 4,
+                            }}
+                            activeDotStyle={{
+                                width: 25,
+                                height: 4,
+                                backgroundColor: "#b4ef02",
+                            }}
+                        />
+                    )}
                 </View>
             ) : null}
             <View className="flex flex-row items-center mt-3 gap-4">

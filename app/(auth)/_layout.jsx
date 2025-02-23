@@ -30,7 +30,8 @@ const CustomBottomNavigation = () => {
     }, []);
 
     useEffect(() => {
-        const routeName = pathname.split("/").pop();
+        const routeName = pathname.split("/")[1];
+        console.log(pathname, pathname.split("/"));
         if (
             routeName &&
             ["home", "search", "create", "notifications", "profile"].includes(
