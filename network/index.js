@@ -78,7 +78,7 @@ axiosInstance.interceptors.response.use(
             }
         } else if (error.request) {
             ToastAndroid.showWithGravityAndOffset(
-                "No response received: " + error.request,
+                "No response received: " + error.message || "unknown error",
                 ToastAndroid.LONG,
                 ToastAndroid.TOP,
                 25,

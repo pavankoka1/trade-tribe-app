@@ -14,6 +14,8 @@ import network from "@/network";
 import { TabBar, TabView } from "react-native-tab-view";
 import UserList from "@/components/search/UserList";
 import { useRouter } from "expo-router";
+import { Button } from "react-native-paper";
+import StocksList from "@/components/search/StocksList";
 
 const { width } = Dimensions.get("window");
 
@@ -33,49 +35,26 @@ const Search = () => {
     const renderScene = ({ route }) => {
         switch (route.key) {
             case "people":
-            case "stocks":
                 return <UserList query={query} />;
+            case "stocks":
+                return <StocksList query={query} />;
             default:
                 return null;
         }
     };
 
-    const handleSearch = (text) => {
-        setQuery(text);
-
-        // Clear the previous timeout if it exists
-        if (timerRef.current) {
-            clearTimeout(timerRef.current);
-        }
-
-        // Set a new timeout
-        timerRef.current = setTimeout(async () => {
-            if (text.trim()) {
-                try {
-                    const response = await network.get(
-                        `https://query2.finance.yahoo.com/v1/finance/search?q=${text.trim()}*`
-                    );
-                    console.log(response);
-                    setList(response.quotes || []); // Adjust based on the structure of the response
-                } catch (error) {
-                    console.error("Error fetching data:", error);
-                }
-            } else {
-                setList([]); // Clear the list if the query is empty
-            }
-        }, 300); // Adjust the debounce delay as needed
-    };
-
     return (
         <View className="flex-1 py-0 px-4">
-            <View className="flex flex-row gap-4 items-center my-3 px-4">
-                <Pressable
+            <View className="flex flex-row items-center my-3 px-4 pl-0">
+                <Button
                     onPress={() => {
                         router.replace("/(auth)/home");
                     }}
+                    className="m-0 p-0 width-[0]"
+                    style={{ minWidth: 0 }}
                 >
                     <ArrowIcon />
-                </Pressable>
+                </Button>
                 <View className="flex gap-3 flex-row border border-[#1F2023] bg-[#1F1F1F] rounded-3xl flex-1 items-center py-3 px-4">
                     <SearchIcon />
                     <TextInput
@@ -83,7 +62,7 @@ const Search = () => {
                         placeholder="Search"
                         placeholderTextColor="#B1B1B1"
                         value={query}
-                        onChangeText={handleSearch}
+                        onChangeText={setQuery}
                         cursorColor="#B4EF02"
                     />
                 </View>

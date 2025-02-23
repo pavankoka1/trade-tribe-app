@@ -31,32 +31,22 @@ const LoginContent = ({ onLoginPress, code, codeVerifier }) => {
             </View>
             <View className="flex gap-2">
                 <TouchableOpacity onPress={openAuthUrl}>
-                    <View className="flex flex-row h-12 w-full rounded-2xl bg-white items-center px-8 gap-4">
-                        {/* <Image
-                            source={require("@/assets/images/logos/google.jpg")}
-                            style={{ width: 18, height: 18 }}
-                        /> */}
+                    <View className="flex flex-row w-full rounded-2xl bg-white items-center px-8 py-4 gap-4">
                         <GoogleIcon />
-                        <Text className="font-manrope-bold text-14 text-[#111314]">
+                        <Text className="font-manrope-bold text-14 text-[#111314] leading-[18px] h-fit">
                             Continue with Google account
                         </Text>
                     </View>
                 </TouchableOpacity>
                 <View className="flex flex-row gap-4 items-center">
                     <Text className="h-[1px] flex-1 bg-[#2f2f2f]" />
-                    <Text className="font-manrope text-10 uppercase text-white">
-                        or
-                    </Text>
+                    <Text className="font-manrope text-10 text-white">OR</Text>
                     <Text className="h-[1px] flex-1 bg-[#2f2f2f]" />
                 </View>
                 <TouchableOpacity onPress={openAuthUrl}>
-                    <View className="flex flex-row h-12 w-full rounded-2xl bg-white items-center px-8 gap-4">
-                        {/* <Image
-                            source={FACEBOOK}
-                            style={{ width: 10, height: 18 }} // Ensure dimensions are set
-                        /> */}
+                    <View className="flex flex-row w-full rounded-2xl bg-white items-center px-8 py-4 gap-4">
                         <FacebookIcon />
-                        <Text className="font-manrope-bold text-14 text-[#111314]">
+                        <Text className="font-manrope-bold text-14 text-[#111314] leading-[18px] h-fit">
                             Continue with Facebook account
                         </Text>
                     </View>

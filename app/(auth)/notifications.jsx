@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { View, Text, Animated } from "react-native";
 
-const Profile = () => {
+const Notifications = () => {
     const opacity = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -34,4 +34,4 @@ const Profile = () => {
     );
 };
 
-export default Profile;
+export default Notifications;

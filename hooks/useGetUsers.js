@@ -33,7 +33,7 @@ function useGetUsers() {
                 setUsers(res);
             })
             .catch((err) => {
-                console.error(err);
+                // console.error(err);
             })
             .finally(() => {
                 setLoading(false);

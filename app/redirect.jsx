@@ -8,14 +8,56 @@ import API_PATHS from "@/network/apis";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { HEADERS_KEYS } from "@/network/constants";
 import * as SecureStore from "expo-secure-store";
+import replacePlaceholders from "@/utils/replacePlaceholders";
 
 export default function Redirect() {
-    const { code } = useLocalSearchParams();
+    const { code, refresh } = useLocalSearchParams();
     const router = useRouter();
 
     useEffect(() => {
         handleAuthentication();
-    }, [code]);
+    }, [code, refresh]);
+
+    async function checkIfUserIsValid() {
+        const refreshToken = await SecureStore.getItemAsync(
+            HEADERS_KEYS.REFRESH_TOKEN
+        );
+        const userId = await SecureStore.getItemAsync(HEADERS_KEYS.USER_ID);
+
+        if (refresh && refreshToken) {
+            network
+                .post(API_PATHS.refreshToken, { userId, refreshToken })
+                .then(onAuthSuccess)
+                .catch(onAuthFailure);
+        } else {
+            network
+                .get(replacePlaceholders(API_PATHS.getUserById, userId))
+                .then(() => router.replace("/(auth)/home"))
+                .catch(() => router.replace("/redirect?refresh=true"));
+        }
+    }
+
+    async function onAuthFailure(err) {
+        // console.error(err);
+        await SecureStore.deleteItemAsync(HEADERS_KEYS.TOKEN);
+        await SecureStore.deleteItemAsync(HEADERS_KEYS.REFRESH_TOKEN);
+        await SecureStore.deleteItemAsync(HEADERS_KEYS.USER_ID);
+        router.replace("/");
+    }
+
+    async function onAuthSuccess(res) {
+        const token = res.token;
+        const refreshToken = res.refreshToken;
+        const userId = res.id ? res.id.toString() : res.userId.toString();
+
+        await SecureStore.setItemAsync(HEADERS_KEYS.TOKEN, token);
+        await SecureStore.setItemAsync(
+            HEADERS_KEYS.REFRESH_TOKEN,
+            refreshToken
+        );
+        await SecureStore.setItemAsync(HEADERS_KEYS.USER_ID, userId);
+        router.replace("/(auth)/home");
+    }
 
     async function handleAuthentication() {
         const token = await SecureStore.getItemAsync(HEADERS_KEYS.TOKEN);
@@ -27,34 +69,12 @@ export default function Redirect() {
                     authorizationCode: code,
                     redirectUrl: process.env.EXPO_PUBLIC_API_REDIRECT,
                 })
-                .then(async (res) => {
-                    const token = res.token;
-                    const refreshToken = res.refreshToken;
-                    const userId = res.id.toString();
-
-                    console.log(res.token);
-
-                    await SecureStore.setItemAsync(HEADERS_KEYS.TOKEN, token);
-                    await SecureStore.setItemAsync(
-                        HEADERS_KEYS.REFRESH_TOKEN,
-                        refreshToken
-                    );
-                    await SecureStore.setItemAsync(
-                        HEADERS_KEYS.USER_ID,
-                        userId
-                    );
-                    router.replace("/(auth)/home");
-                })
-                .catch((err) => {
-                    console.log(err);
-                    console.log(err.message);
-                    console.error(err);
-                    router.replace("/");
-                });
+                .then(onAuthSuccess)
+                .catch(onAuthFailure);
         } else if (token) {
-            router.replace("/(auth)/home");
+            checkIfUserIsValid();
         } else {
-            router.replace("/");
+            onAuthFailure();
         }
     }
 

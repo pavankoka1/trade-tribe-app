@@ -44,19 +44,20 @@ const CustomBottomNavigation = () => {
     async function handleAuthentication() {
         const userId = await SecureStore.getItemAsync(HEADERS_KEYS.USER_ID);
         const token = await SecureStore.getItemAsync(HEADERS_KEYS.TOKEN);
+        const refreshToken = await SecureStore.getItemAsync(
+            HEADERS_KEYS.REFRESH_TOKEN
+        );
 
         network
             .get(replacePlaceholders(API_PATHS.getUserById, userId))
             .then((res) => {
                 console.log(res);
                 console.log(token);
+                console.log(refreshToken);
                 setUserDetails(res);
             })
             .catch(async () => {
-                await SecureStore.deleteItemAsync(HEADERS_KEYS.TOKEN);
-                await SecureStore.deleteItemAsync(HEADERS_KEYS.REFRESH_TOKEN);
-                await SecureStore.deleteItemAsync(HEADERS_KEYS.USER_ID);
-                router.replace("/redirect");
+                router.replace("/redirect?refresh=true");
             });
 
         network
@@ -99,37 +100,40 @@ const CustomBottomNavigation = () => {
                 </Animated.View>
 
                 {/* Bottom Navigation */}
-                <View className="flex-row justify-around items-center h-16 bg-[#161616] border-t-2 border-[#1F2023] px-2">
+                <View className="flex-row justify-around items-center h-20 bg-[#161616] border-t-2 border-[#1F2023] px-2">
                     <TouchableOpacity
-                        className="items-center justify-center"
+                        className="items-center justify-center flex-1 py-2"
                         onPress={() => handleTabPress("home")}
                     >
                         <HomeIcon
                             color={activeTab === "home" ? "#b4ef02" : "#ffffff"}
+                            size={28}
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        className="items-center justify-center"
+                        className="items-center justify-center flex-1 py-2"
                         onPress={() => handleTabPress("search")}
                     >
                         <SearchIcon
                             color={
                                 activeTab === "search" ? "#b4ef02" : "#ffffff"
                             }
+                            size={26}
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        className="items-center justify-center"
+                        className="items-center justify-center flex-1 py-2"
                         onPress={() => handleTabPress("create")}
                     >
                         <AddIcon
                             color={
                                 activeTab === "create" ? "#b4ef02" : "#ffffff"
                             }
+                            size={26}
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        className="items-center justify-center"
+                        className="items-center justify-center flex-1 py-2"
                         onPress={() => handleTabPress("notifications")}
                     >
                         <BellIcon
@@ -138,16 +142,18 @@ const CustomBottomNavigation = () => {
                                     ? "#b4ef02"
                                     : "#ffffff"
                             }
+                            size={26}
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        className="items-center justify-center"
+                        className="items-center justify-center flex-1 py-2"
                         onPress={() => handleTabPress("profile")}
                     >
                         <PersonIcon
                             color={
                                 activeTab === "profile" ? "#b4ef02" : "#ffffff"
                             }
+                            size={26}
                         />
                     </TouchableOpacity>
                 </View>
