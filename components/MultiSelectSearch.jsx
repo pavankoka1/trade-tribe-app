@@ -1,11 +1,12 @@
 import React from "react";
 import { View, Text, FlatList, TouchableOpacity, Image } from "react-native";
 import BottomSheet from "./BottomSheet"; // Adjust the import path as necessary
-import { TextInput } from "react-native-paper";
+import { ActivityIndicator, TextInput } from "react-native-paper";
 import clsx from "clsx";
 import TickIcon from "@/icons/TickIcon";
 
 const MultiSelectSearch = ({
+    loading,
     children,
     data,
     selectedItems,
@@ -105,11 +106,17 @@ const MultiSelectSearch = ({
                             onChangeText={setSearchText}
                         />
                     </View>
-                    <FlatList
-                        data={data}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => item.id}
-                    />
+                    {loading ? (
+                        <View className="flex-1 flex justify-center items-center">
+                            <ActivityIndicator size="small" />
+                        </View>
+                    ) : (
+                        <FlatList
+                            data={data}
+                            renderItem={renderItem}
+                            keyExtractor={(item) => item.id}
+                        />
+                    )}
                 </View>
             </BottomSheet>
         </View>

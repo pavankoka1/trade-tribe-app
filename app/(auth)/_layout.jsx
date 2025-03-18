@@ -16,6 +16,7 @@ import generateQueryParams from "@/utils/generateQueryParams";
 import { HEADERS_KEYS } from "@/network/constants";
 import replacePlaceholders from "@/utils/replacePlaceholders";
 import useUserStore from "@/hooks/useUserStore";
+import CommentsBottomSheet from "@/components/home/CommentsBottomSheet";
 
 const CustomBottomNavigation = () => {
     const router = useRouter();
@@ -23,7 +24,8 @@ const CustomBottomNavigation = () => {
     const [activeTab, setActiveTab] = useState("home");
     const [animation] = useState(new Animated.Value(1));
 
-    const { setUserDetails, setFollowing } = useUserStore();
+    const { setUserDetails, setFollowing, setFollowers, fetchPosts, details } =
+        useUserStore();
 
     useEffect(() => {
         handleAuthentication();
@@ -31,7 +33,7 @@ const CustomBottomNavigation = () => {
 
     useEffect(() => {
         const routeName = pathname.split("/")[1];
-        console.log(pathname, pathname.split("/"));
+
         if (
             routeName &&
             ["home", "search", "create", "notifications", "profile"].includes(
@@ -52,9 +54,6 @@ const CustomBottomNavigation = () => {
         network
             .get(replacePlaceholders(API_PATHS.getUserById, userId))
             .then((res) => {
-                console.log(res);
-                console.log(token);
-                console.log(refreshToken);
                 setUserDetails(res);
             })
             .catch(async () => {
@@ -65,6 +64,12 @@ const CustomBottomNavigation = () => {
             .get(replacePlaceholders(API_PATHS.getFollowing, userId))
             .then((res) => {
                 setFollowing(res);
+            });
+
+        network
+            .get(replacePlaceholders(API_PATHS.getFollowers, userId))
+            .then((res) => {
+                setFollowers(res);
             });
     }
 
@@ -159,6 +164,7 @@ const CustomBottomNavigation = () => {
                     </TouchableOpacity>
                 </View>
             </View>
+            <CommentsBottomSheet userId={details.id} />
         </SafeAreaProvider>
     );
 };

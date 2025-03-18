@@ -25,6 +25,7 @@ export default function Redirect() {
         const userId = await SecureStore.getItemAsync(HEADERS_KEYS.USER_ID);
 
         if (refresh && refreshToken) {
+            await SecureStore.deleteItemAsync(HEADERS_KEYS.TOKEN);
             network
                 .post(API_PATHS.refreshToken, { userId, refreshToken })
                 .then(onAuthSuccess)

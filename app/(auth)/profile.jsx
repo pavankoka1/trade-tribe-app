@@ -1,15 +1,34 @@
-import React, { useEffect, useRef } from "react";
-import { View, Text, Animated } from "react-native";
+import React, { useEffect, useState } from "react";
+import { FlatList, RefreshControl, View } from "react-native";
 import Header from "@/components/profile/Header";
 import Card from "@/components/profile/Card";
+import TabWrapper from "@/components/Tabs/TabWrapper";
+import useUserStore from "@/hooks/useUserStore";
+import { ActivityIndicator } from "react-native-paper";
+import PostsLoader from "@/components/home/PostsLoader";
+import SettingsBottomSheet from "@/components/profile/SettingsBottomSheet";
+
+const Portfolio = React.lazy(() => import("@/components/profile/Portfolio"));
+const Posts = React.lazy(() => import("@/components/profile/Posts"));
+
+const tabs = [
+    { key: "portfolio", title: "Your Portfolio", component: Portfolio },
+    {
+        key: "posts",
+        title: "Posts",
+        component: Posts,
+    },
+];
 
 const Profile = () => {
-    return (
-        <View className="flex-1 bg-[#161616]">
-            <Header />
-            <Card />
-        </View>
-    );
+    const { openSettingsBottomSheet, setSettingsBottomSheet } = useUserStore();
+    const [activeTab, setActiveTab] = useState(tabs[0].key);
+
+    if (activeTab === "portfolio") {
+        return <Portfolio handleTabChange={() => setActiveTab("posts")} />;
+    }
+
+    return <Posts handleTabChange={() => setActiveTab("portfolio")} />;
 };
 
 export default Profile;

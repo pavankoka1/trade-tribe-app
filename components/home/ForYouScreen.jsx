@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useCallback } from "react";
 import useFeeds from "@/hooks/useFeeds";
 import FeedPost from "./FeedPost";
 import { Button } from "react-native-paper";
+import CommentsBottomSheet from "./CommentsBottomSheet";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -69,8 +70,9 @@ const ForYouScreen = () => {
                 <Button
                     className="bg-primary-main text-[#292929] font-manrope-bold text-10 py-2 px-4 rounded-xl"
                     onPress={onRefresh}
-                    label="Refresh"
-                />
+                >
+                    Refresh
+                </Button>
             </View>
         );
     }
@@ -97,7 +99,7 @@ const ForYouScreen = () => {
                         onRefresh={onRefresh}
                     />
                 }
-                initialNumToRender={10} // Render 10 items initially
+                initialNumToRender={3} // Render 10 items initially
                 windowSize={5} // Number of items to render outside the viewport
             />
             {error && (

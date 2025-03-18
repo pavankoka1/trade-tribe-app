@@ -1,5 +1,12 @@
-import { View, Text, Image, Dimensions } from "react-native";
-import React, { useRef } from "react";
+import {
+    View,
+    Text,
+    Image,
+    Dimensions,
+    ActivityIndicator,
+    TouchableOpacity,
+} from "react-native";
+import React, { useRef, useEffect, useState } from "react";
 import VerifiedIcon from "@/icons/VerifiedIcon";
 import moment from "moment";
 import ThumbIcon from "@/icons/ThumbIcon";
@@ -10,23 +17,27 @@ import ThreeDotsIcon from "@/icons/ThreeDotsIcon";
 import Carousel, { Pagination } from "react-native-reanimated-carousel";
 import { useSharedValue } from "react-native-reanimated";
 import PostsLoader from "./PostsLoader";
-import { renderItem } from "@/utils/rendeItem";
 import { useAdvancedSettings } from "@/hooks/useSettings";
 import { SlideItem } from "../SlideItem";
 import useUserStore from "@/hooks/useUserStore";
+import CommentsBottomSheet from "./CommentsBottomSheet";
+import { Portal } from "react-native-paper";
+import useActivityStore from "@/hooks/useActivityStore";
 
 const FeedPost = ({ item }) => {
     if (!item) return <PostsLoader />;
+    const { followers, details } = useUserStore();
 
     const carouselRef = useRef(null);
     const progress = useSharedValue(0);
-    const images = item.postDetails.mediaUrls;
+    const postDetails = item.postDetails || item;
+    const authorDetails = item.postAuthorDetails || details;
+    const images = postDetails.mediaUrls;
     const screenWidth = Dimensions.get("window").width;
 
-    const { followers } = useUserStore();
+    const [showComments, setShowComments] = useState(false);
 
     const { advancedSettings, onAdvancedSettingsChange } = useAdvancedSettings({
-        // These values will be passed in the Carousel Component as default props
         defaultSettings: {
             autoPlay: false,
             autoPlayInterval: 2000,
@@ -41,23 +52,31 @@ const FeedPost = ({ item }) => {
         },
     });
 
+    const { setActiveCommentPostId } = useActivityStore();
+
+    const [isLoading, setIsLoading] = useState(true);
+
+    const handleCarouselLayout = () => {
+        setIsLoading(false);
+    };
+
     return (
-        <View className="py-6 px-4 border-b border-[2px] border-[#1F2023]">
+        <View className="py-6 px-4 border-b-[2px] border-[#1F2023]">
             <View className="flex flex-row items-center mr-2 mb-4">
                 <Image
                     width={40}
                     height={40}
-                    source={{ uri: item.postAuthorDetails.profilePictureUrl }}
+                    source={{ uri: authorDetails.profilePictureUrl }}
                     className="rounded-full mr-2"
                 />
                 <View className="flex flex-col gap-1 mr-auto">
                     <View className="flex flex-row items-center">
                         <Text className="font-manrope-bold text-14 text-white leading-none h-[14px]">
-                            {item.postAuthorDetails.name}
+                            {authorDetails.name}
                         </Text>
                         <VerifiedIcon />
                         <View className="mx-2 h-1 w-1 rounded-full bg-[#b1b1b1]" />
-                        {!followers.includes(item.postAuthorDetails.id) ? (
+                        {!followers.includes(authorDetails.id) ? (
                             <Text className="text-primary-main font-manrope-bold text-14 leading-none h-[14px]">
                                 Follow
                             </Text>
@@ -69,25 +88,20 @@ const FeedPost = ({ item }) => {
                         </Text>
                         <View className="mx-2 h-1 w-1 mt-1 rounded-full bg-[#b1b1b1]" />
                         <Text className="text-[#b1b1b1] font-manrope-medium text-10">
-                            {moment(item.postDetails.createdAt).format(
-                                "h:mm a"
-                            )}
+                            {moment(postDetails.createdAt).format("h:mm a")}
                         </Text>
                     </View>
                 </View>
                 <ThreeDotsIcon />
             </View>
-            {item.postDetails.content && (
-                <Text
-                    className="font-manrope text-white text-14"
-                    style={{ fontSize: 20, color: "white" }}
-                >
-                    {item.postDetails.content}
+            {postDetails.content && (
+                <Text className="font-manrope text-white text-14">
+                    {postDetails.content}
                 </Text>
             )}
 
             {images?.length ? (
-                <View className="w-full mt-4">
+                <View className="w-full mt-4 relative">
                     <Carousel
                         ref={carouselRef}
                         autoPlayInterval={2000}
@@ -97,19 +111,34 @@ const FeedPost = ({ item }) => {
                         pagingEnabled={true}
                         snapEnabled={true}
                         width={screenWidth - 32}
-                        style={{ width: screenWidth - 32 }}
+                        style={{
+                            width: screenWidth - 32,
+                            opacity: isLoading ? 0 : 1,
+                        }}
                         onProgressChange={progress}
+                        onLayout={handleCarouselLayout} // Set loading to false when the carousel layout is ready
                         renderItem={({ item, index }) => (
                             <SlideItem
-                                source={item}
                                 key={index}
                                 index={index}
                                 rounded={true}
+                                source={item}
+                                progress={parseInt(progress.value.toFixed(0))}
+                                onImageLoad={() => setIsLoading(false)}
                             />
                         )}
                     />
-
-                    {images.length > 1 && (
+                    {isLoading && (
+                        <View
+                            className="bg-[#b1b1b1] animate-pulse absolute w-full h-full"
+                            style={{
+                                borderRadius: 15,
+                                height: 220,
+                                width: screenWidth - 32,
+                            }}
+                        ></View>
+                    )}
+                    {images?.length > 1 && (
                         <Pagination.Basic
                             progress={progress}
                             length={images.length}
@@ -139,15 +168,18 @@ const FeedPost = ({ item }) => {
                 <View className="flex flex-row items-center">
                     <ThumbIcon />
                     <Text className="font-manrope-medium text-12 text-white ml-1">
-                        {item.postDetails.likesCount}
+                        {postDetails.likesCount}
                     </Text>
                 </View>
-                <View className="flex flex-row items-center mr-auto">
+                <TouchableOpacity
+                    className="flex flex-row items-center mr-auto"
+                    onPress={() => setActiveCommentPostId(postDetails.id)}
+                >
                     <MessageIcon />
                     <Text className="font-manrope-medium text-12 text-white ml-1 mr-auto">
-                        {item.postDetails.commentsCount}
+                        {postDetails.commentsCount}
                     </Text>
-                </View>
+                </TouchableOpacity>
                 <SendIcon />
                 <BookmarkIcon />
             </View>

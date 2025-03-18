@@ -13,14 +13,19 @@ import API_PATHS from "@/network/apis";
 import * as SecureStore from "expo-secure-store";
 import { HEADERS_KEYS } from "@/network/constants";
 
-const ImageUploader = ({ children, images, setImages }) => {
+const ImageUploader = ({
+    children,
+    images = [],
+    setImages,
+    selectionLimit = 4,
+}) => {
     const userId = SecureStore.getItem(HEADERS_KEYS.USER_ID);
 
     const handleImagePick = () => {
         const options = {
             mediaType: "photo",
             quality: 1,
-            selectionLimit: 4,
+            selectionLimit,
             includeBase64: false,
         };
 
@@ -92,7 +97,7 @@ const ImageUploader = ({ children, images, setImages }) => {
             <TouchableOpacity onPress={handleImagePick}>
                 {children}
             </TouchableOpacity>
-            <View className="flex flex-row flex-wrap mt-2 gap-4">
+            <View className="flex flex-row flex-wrap my-2 gap-4">
                 {images.length > 0
                     ? images.map((image, index) => (
                           <View

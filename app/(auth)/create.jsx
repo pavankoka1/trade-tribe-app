@@ -24,7 +24,12 @@ const Create = () => {
     const [tags, setTags] = useState([]);
     const [images, setImages] = useState([]);
 
-    const { searchText, users, setSearchText } = useGetUsers();
+    const {
+        searchText,
+        users,
+        loading: userListLoading,
+        setSearchText,
+    } = useGetUsers();
 
     function handleSubmit() {
         const userId = SecureStore.getItem(HEADERS_KEYS.USER_ID);
@@ -75,17 +80,22 @@ const Create = () => {
                     </Button>
                 )}
             </View>
-            <View className="flex flex-row items-center ml-[2px]">
-                <View className="h-6 bg-primary-main w-[2px]" />
+            <View className="flex flex-row ml-[2px] mb-6">
+                <View className="h-6 bg-primary-main w-[2px] mt-4" />
                 <TextInput
                     mode="flat"
                     placeholder="Post your views, data or charts..."
                     placeholderTextColor="#b1b1b1"
                     textColor="#fff"
                     fontSize={20}
-                    underlineStyle={{
-                        display: "none",
-                    }}
+                    underlineStyle={
+                        {
+                            // display: "none",
+                        }
+                    }
+                    multiline={true}
+                    numberOfLines={8}
+                    height={160}
                     style={{
                         flex: 1,
                         backgroundColor: "transparent",
@@ -108,6 +118,7 @@ const Create = () => {
                 </View>
             </ImageUploader>
             <MultiSelectSearch
+                loading={userListLoading}
                 data={users}
                 selectedItems={tags}
                 setSelectedItems={setTags}

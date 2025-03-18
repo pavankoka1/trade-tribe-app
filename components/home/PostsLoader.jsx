@@ -27,8 +27,15 @@ function PostsLoader() {
                 </View>
                 <ThreeDotsIcon />
             </View>
-            <View className="w-full h-52 rounded-lg animate-pulse bg-[#b1b1b1] mt-4" />
-            <View className="flex flex-row items-center mt-3 gap-4">
+            <View className="w-3/4 h-8 rounded-lg animate-pulse bg-[#b1b1b1] mt-6" />
+            <View className="w-full h-60 rounded-2xl animate-pulse bg-[#b1b1b1] mt-4" />
+            <View className="flex flex-row items-center justify-center mt-4 gap-2">
+                <View className="h-1 w-7 rounded-lg animate-pulse bg-[#b1b1b1]" />
+                <View className="h-1 w-7 rounded-lg animate-pulse bg-[#b1b1b1]" />
+                <View className="h-1 w-7 rounded-lg animate-pulse bg-[#b1b1b1]" />
+                <View className="h-1 w-7 rounded-lg animate-pulse bg-[#b1b1b1]" />
+            </View>
+            <View className="flex flex-row items-center mt-6 gap-4">
                 <View className="flex flex-row items-center">
                     <ThumbIcon />
                     <View className="ml-1 w-4 h-4 animate-pulse bg-[#b1b1b1] rounded" />

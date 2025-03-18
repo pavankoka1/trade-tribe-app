@@ -5,17 +5,21 @@ import {
     TouchableWithoutFeedback,
     Animated,
     Pressable,
+    TouchableOpacity,
 } from "react-native";
 import PropTypes from "prop-types";
 import CloseIcon from "@/icons/CloseIcon"; // Adjust the import path as necessary
 import { Easing } from "react-native"; // Import Easing
+import clsx from "clsx";
 
 const BottomSheet = ({
     isOpen,
     className,
     onClose,
     children,
+    closeClassName,
     closeOnOverlayClick = true,
+    paddingNeeded = true,
 }) => {
     const [isVisible, setIsVisible] = useState(isOpen);
     const [translateY] = useState(new Animated.Value(300)); // Start off-screen
@@ -49,21 +53,28 @@ const BottomSheet = ({
         <Modal
             transparent
             visible={isVisible}
-            animationType="none"
+            animationType="slide"
             onRequestClose={onClose}
         >
             <TouchableWithoutFeedback onPress={handleOverlayClick}>
                 <View className="flex-1 justify-end bg-[#161616] bg-opacity-50">
                     <Animated.View
                         style={[{ transform: [{ translateY }] }]}
-                        className={`bg-[#161616] w-full rounded-t-lg pt-5 px-4 shadow-lg ${className}`}
+                        className={clsx(
+                            "bg-[#161616] w-full rounded-t-lg  shadow-lg",
+                            { "pt-5 px-4": paddingNeeded },
+                            className
+                        )}
                     >
-                        <Pressable
+                        <TouchableOpacity
                             onPress={onClose}
-                            className="absolute top-4 right-4"
+                            className={clsx(
+                                "absolute top-4 right-4 p-4 z-[999999]",
+                                closeClassName
+                            )}
                         >
                             <CloseIcon />
-                        </Pressable>
+                        </TouchableOpacity>
                         {children}
                     </Animated.View>
                 </View>

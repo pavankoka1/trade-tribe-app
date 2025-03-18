@@ -1,7 +1,8 @@
 import generateRandomString from "@/utils/generateRandomString";
 import axios from "axios";
+import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { ToastAndroid } from "react-native"; // Import ToastAndroid
+import { ToastAndroid } from "react-native";
 
 const axiosInstance = axios.create({
     baseURL: process.env.EXPO_PUBLIC_API_DOMAIN,
@@ -32,6 +33,8 @@ axiosInstance.interceptors.response.use(
         if (error.response) {
             switch (error.response.status) {
                 case 401:
+                    const router = useRouter();
+                    router.replace("/redirect?refresh=true");
                     ToastAndroid.showWithGravityAndOffset(
                         "Unauthorized: Please log in again.",
                         ToastAndroid.LONG,
