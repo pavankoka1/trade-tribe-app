@@ -4,11 +4,8 @@ import { View, Dimensions } from "react-native";
 import { TabBar, TabView, SceneMap } from "react-native-tab-view";
 import CommentsBottomSheet from "@/components/home/CommentsBottomSheet";
 import SettingsBottomSheet from "@/components/profile/SettingsBottomSheet";
-
-const TrendingScreen = React.lazy(() =>
-    import("@/components/home/TrendingScreen")
-);
-const ForYouScreen = React.lazy(() => import("@/components/home/ForYouScreen"));
+import TrendingScreen from "@/components/home/TrendingScreen";
+import ForYouScreen from "@/components/home/ForYouScreen";
 
 const { width } = Dimensions.get("window");
 

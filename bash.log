@@ -3574,4 +3574,8 @@ curl: (56) Recv failure: Operation timed out
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   146    0   146    0     0    343      0 --:--:-- --:--:-- --:--:--   342
-{"timestamp":"2025-03-18 16:27:16","status":401,"error":"Unauthorized","message":"Invalid or expired access token","path":"/api/v1/search/user/5"}
+{"timestamp":"2025-03-18 16:27:16","status":401,"error":"Unauthorized","message":"Invalid or expired access token","path":"/api/v1/search/user/5"}2025-03-18 22:02:16 IST
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   146    0   146    0     0    147      0 --:--:-- --:--:-- --:--:--   147
+{"timestamp":"2025-03-18 16:32:17","status":401,"error":"Unauthorized","message":"Invalid or expired access token","path":"/api/v1/search/user/5"}
