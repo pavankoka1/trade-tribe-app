@@ -1,3 +1,4 @@
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import {
     View,
     Text,
@@ -6,7 +7,6 @@ import {
     ActivityIndicator,
     TouchableOpacity,
 } from "react-native";
-import React, { useRef, useEffect, useState } from "react";
 import VerifiedIcon from "@/icons/VerifiedIcon";
 import moment from "moment";
 import ThumbIcon from "@/icons/ThumbIcon";
@@ -23,10 +23,13 @@ import useUserStore from "@/hooks/useUserStore";
 import CommentsBottomSheet from "./CommentsBottomSheet";
 import { Portal } from "react-native-paper";
 import useActivityStore from "@/hooks/useActivityStore";
+import useFeedStore from "@/hooks/useFeedStore";
 
-const FeedPost = ({ item }) => {
+const FeedPost = React.memo(({ item }) => {
     if (!item) return <PostsLoader />;
+
     const { followers, details } = useUserStore();
+    const { removeLike, updatingLikeId, addLike } = useFeedStore();
 
     const carouselRef = useRef(null);
     const progress = useSharedValue(0);
@@ -36,6 +39,9 @@ const FeedPost = ({ item }) => {
     const screenWidth = Dimensions.get("window").width;
 
     const [showComments, setShowComments] = useState(false);
+    const { setActiveCommentPostId } = useActivityStore();
+
+    const [isLoading, setIsLoading] = useState(true);
 
     const { advancedSettings, onAdvancedSettingsChange } = useAdvancedSettings({
         defaultSettings: {
@@ -52,13 +58,14 @@ const FeedPost = ({ item }) => {
         },
     });
 
-    const { setActiveCommentPostId } = useActivityStore();
-
-    const [isLoading, setIsLoading] = useState(true);
-
     const handleCarouselLayout = () => {
         setIsLoading(false);
     };
+
+    const handleLikePost = useCallback(() => {
+        const func = postDetails.isLiked ? removeLike : addLike;
+        func(details.id, postDetails.id);
+    }, [postDetails.isLiked, details.id, postDetails.id, removeLike, addLike]);
 
     return (
         <View className="py-6 px-4 border-b-[2px] border-[#1F2023]">
@@ -165,12 +172,21 @@ const FeedPost = ({ item }) => {
                 </View>
             ) : null}
             <View className="flex flex-row items-center mt-3 gap-4">
-                <View className="flex flex-row items-center">
-                    <ThumbIcon />
-                    <Text className="font-manrope-medium text-12 text-white ml-1">
-                        {postDetails.likesCount}
-                    </Text>
-                </View>
+                {updatingLikeId === postDetails.id && !!updatingLikeId ? (
+                    <ActivityIndicator size="small" color="#b4ef02" />
+                ) : (
+                    <View className="flex flex-row items-center">
+                        <TouchableOpacity onPress={handleLikePost}>
+                            <ThumbIcon
+                                color={postDetails.isLiked ? "#b4ef02" : "#fff"}
+                                fill={postDetails.isLiked ? true : false}
+                            />
+                        </TouchableOpacity>
+                        <Text className="font-manrope-medium text-12 text-white ml-1">
+                            {postDetails.likesCount}
+                        </Text>
+                    </View>
+                )}
                 <TouchableOpacity
                     className="flex flex-row items-center mr-auto"
                     onPress={() => setActiveCommentPostId(postDetails.id)}
@@ -185,6 +201,6 @@ const FeedPost = ({ item }) => {
             </View>
         </View>
     );
-};
+});
 
 export default FeedPost;

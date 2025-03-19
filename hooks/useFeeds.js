@@ -3,12 +3,15 @@ import useFeedStore from "./useFeedStore";
 
 const useFeeds = () => {
     const {
+        updatingLikeId,
         isFetchingForYou,
         forYouFeeds,
         fetchForYouFeeds,
         loading,
         error,
         resetFeeds,
+        forYouPostIds,
+        feeds,
     } = useFeedStore();
 
     const [refreshing, setRefreshing] = useState(false);
@@ -23,6 +26,7 @@ const useFeeds = () => {
     }, []);
 
     return {
+        updatingLikeId,
         isFetchingForYou,
         forYouFeeds,
         loadMoreForYou,
@@ -31,6 +35,8 @@ const useFeeds = () => {
         refreshing,
         setRefreshing,
         resetFeeds,
+        forYouPostIds,
+        feeds,
     };
 };
 

@@ -1,39 +1,58 @@
 import { View, FlatList, RefreshControl, Animated, Text } from "react-native";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useCallback, useState } from "react";
 import useUserStore from "@/hooks/useUserStore";
 import FeedPost from "../home/FeedPost";
 import Header from "./Header";
 import Card from "./Card";
 import TabButton from "@/components/Tabs/TabButton";
+import useFeedStore from "@/hooks/useFeedStore";
 
 const Posts = ({ handleTabChange }) => {
-    const { isFetchingPosts, posts, fetchPosts, resetPosts } = useUserStore();
-    const spinValue = useRef(new Animated.Value(0)).current;
+    const { isFetchingPosts, resetPosts, feeds, postIds, fetchPosts } =
+        useFeedStore();
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         fetchPosts();
     }, []);
+
+    const spinValue = useRef(new Animated.Value(0)).current;
 
     const rotate = spinValue.interpolate({
         inputRange: [0, 1],
         outputRange: ["0deg", "360deg"],
     });
 
-    // const startSpin = () => {
-    //     spinValue.setValue(0);
-    //     Animated.timing(spinValue, {
-    //         toValue: 1,
-    //         duration: 1000,
-    //         useNativeDriver: true,
-    //     }).start(() => startSpin());
-    // };
-
-    const onRefresh = async () => {
-        await resetPosts();
-        await fetchPosts();
+    const startSpin = () => {
+        spinValue.setValue(0);
+        Animated.timing(spinValue, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+        }).start(() => startSpin());
     };
 
-    if (!posts.length && !isFetchingPosts)
+    useEffect(() => {
+        if (refreshing) {
+            startSpin();
+        }
+    }, [refreshing]);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await resetPosts();
+        await fetchPosts();
+        setRefreshing(false);
+    };
+
+    const renderItem = useCallback(
+        ({ item }) => {
+            return <FeedPost item={feeds[item]} />;
+        },
+        [feeds]
+    );
+
+    if (!postIds.length && !isFetchingPosts)
         return (
             <View className="flex-1 flex-col justify-center items-center bg-[#161616]">
                 <Header />
@@ -59,10 +78,12 @@ const Posts = ({ handleTabChange }) => {
 
     return (
         <FlatList
-            data={isFetchingPosts ? [...posts, ...Array(4).fill(null)] : posts}
-            renderItem={({ item }) => <FeedPost item={item} />}
+            data={
+                isFetchingPosts ? [...postIds, ...Array(4).fill(null)] : postIds
+            }
+            renderItem={renderItem}
             keyExtractor={(item) =>
-                item?.id ? "post-" + item.id : "loader-" + Math.random() * 10000
+                item ? "post-" + item : "loader-" + Math.random() * 10000
             }
             ListHeaderComponent={
                 <View className="border-b-[2px] border-[#1F2023]">

@@ -91,7 +91,6 @@ const Search = () => {
                         />
                     )}
                     swipeEnabled={true}
-                    lazy
                 />
             </View>
         </View>

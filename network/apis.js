@@ -14,6 +14,8 @@ const API_PATHS = {
     updateUserDetails: "/api/v1/user/{0}",
     getCommentsByPostId: "/api/v1/comments/post/{0}",
     addComment: "/api/v1/comments",
+    addLike: "/api/v1/likes",
+    removeLike: "/api/v1/likes/{0}/{1}",
 };
 
 export default API_PATHS;

@@ -8,8 +8,8 @@ import { ActivityIndicator } from "react-native-paper";
 import PostsLoader from "@/components/home/PostsLoader";
 import SettingsBottomSheet from "@/components/profile/SettingsBottomSheet";
 
-const Portfolio = React.lazy(() => import("@/components/profile/Portfolio"));
-const Posts = React.lazy(() => import("@/components/profile/Posts"));
+import Portfolio from "@/components/profile/Portfolio";
+import Posts from "@/components/profile/Posts";
 
 const tabs = [
     { key: "portfolio", title: "Your Portfolio", component: Portfolio },

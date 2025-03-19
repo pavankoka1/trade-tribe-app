@@ -27,7 +27,7 @@ const Card = () => {
                     <View className="flex flex-row gap-16">
                         <View className="flex flex-col gap-1 items-center h-fit w-fit">
                             <Text className="font-manrope-bold text-primary-main">
-                                0
+                                {details.postCount}
                             </Text>
                             <Text className="font-manrope-medium text-12 text-white leading-1">
                                 Posts
@@ -35,7 +35,7 @@ const Card = () => {
                         </View>
                         <View className="flex flex-col gap-1 items-center h-fit w-fit">
                             <Text className="font-manrope-bold text-primary-main">
-                                {following.length}
+                                {details.followingCount}
                             </Text>
                             <Text className="font-manrope-medium text-12 text-white leading-1">
                                 Following
@@ -43,7 +43,7 @@ const Card = () => {
                         </View>
                         <View className="flex flex-col gap-1 items-center h-fit w-fit">
                             <Text className="font-manrope-bold text-primary-main">
-                                {followers.length}
+                                {details.followersCount}
                             </Text>
                             <Text className="font-manrope-medium text-12 text-white leading-1">
                                 Followers

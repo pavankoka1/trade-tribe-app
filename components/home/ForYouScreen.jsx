@@ -18,6 +18,8 @@ const ForYouScreen = () => {
     const {
         isFetchingForYou,
         forYouFeeds,
+        forYouPostIds,
+        feeds,
         loadMoreForYou,
         loading,
         error,
@@ -54,11 +56,17 @@ const ForYouScreen = () => {
         setRefreshing(false);
     };
 
-    const renderItem = useCallback(({ item }) => {
-        return <FeedPost item={item} />;
-    }, []);
+    // const renderItem = useCallback(({ item }) => {
+    //     return <FeedPost item={item} />;
+    // }, []);
+    const renderItem = useCallback(
+        ({ item }) => {
+            return <FeedPost item={feeds[item]} />;
+        },
+        [feeds]
+    );
 
-    if (!forYouFeeds.length && !isFetchingForYou) {
+    if (!forYouPostIds.length && !isFetchingForYou) {
         return (
             <View className="flex-1 flex-col justify-center items-center bg-[#161616]">
                 <Text className="text-[#B1B1B1] font-manrope-bold text-16 mb-1">
@@ -80,16 +88,24 @@ const ForYouScreen = () => {
     return (
         <View className="flex-1 bg-[#161616]">
             <FlatList
+                // data={
+                //     isFetchingForYou
+                //         ? [...forYouFeeds, ...Array(4).fill(null)]
+                //         : forYouFeeds
+                // }
                 data={
                     isFetchingForYou
-                        ? [...forYouFeeds, ...Array(4).fill(null)]
-                        : forYouFeeds
+                        ? [...forYouPostIds, ...Array(4).fill(null)]
+                        : forYouPostIds
                 }
                 renderItem={renderItem}
+                // keyExtractor={(item) =>
+                //     item?.feedId
+                //         ? "for-you-" + item.feedId
+                //         : "loader-" + Math.random() * 10000
+                // }
                 keyExtractor={(item) =>
-                    item?.feedId
-                        ? "for-you-" + item.feedId
-                        : "loader-" + Math.random() * 10000
+                    item ? "for-you-" + item : "loader-" + Math.random() * 10000
                 }
                 onEndReached={() => loadMoreForYou(ITEMS_PER_PAGE)}
                 onEndReachedThreshold={0.5}

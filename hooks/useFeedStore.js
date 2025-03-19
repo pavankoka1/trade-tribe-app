@@ -8,19 +8,80 @@ import { HEADERS_KEYS } from "@/network/constants";
 import generateQueryParams from "@/utils/generateQueryParams";
 
 const useFeedStore = create((set, get) => ({
+    isFetchingPosts: false,
+    hasMorePosts: true,
+    updatingLikeId: null,
     trendingFeeds: [],
     forYouFeeds: [],
     trendingOffset: 0,
+    postOffset: 0,
     forYouOffset: 0,
     loadingTrending: false,
     loadingForYou: false,
     error: null,
+    feeds: {},
     seenPostIds: new Set(),
     forYouPostIds: [],
+    postIds: [],
     isFetchingTrending: false,
     isFetchingForYou: false,
     hasMoreTrending: true,
     hasMoreForYou: true,
+
+    removeLike: async (userId, postId) => {
+        set({ updatingLikeId: postId });
+        network
+            .delete(replacePlaceholders(API_PATHS.removeLike, userId, postId))
+            .then(() => {
+                set((state) => ({
+                    feeds: {
+                        ...state.feeds,
+                        [postId]: {
+                            ...state.feeds[postId],
+                            postDetails: {
+                                ...state.feeds[postId].postDetails,
+                                isLiked: false,
+                                likesCount:
+                                    state.feeds[postId].postDetails.likesCount -
+                                    1,
+                            },
+                        },
+                    },
+                }));
+            })
+            .finally(() => {
+                set({ updatingLikeId: null });
+            });
+    },
+
+    addLike: async (userId, postId) => {
+        set({ updatingLikeId: postId });
+        network
+            .post(API_PATHS.addLike, {
+                userId,
+                postId,
+            })
+            .then(() => {
+                set((state) => ({
+                    feeds: {
+                        ...state.feeds,
+                        [postId]: {
+                            ...state.feeds[postId],
+                            postDetails: {
+                                ...state.feeds[postId].postDetails,
+                                isLiked: true,
+                                likesCount:
+                                    state.feeds[postId].postDetails.likesCount +
+                                    1,
+                            },
+                        },
+                    },
+                }));
+            })
+            .finally(() => {
+                set({ updatingLikeId: null });
+            });
+    },
 
     fetchTrendingFeeds: async (limit) => {
         if (get().isFetchingTrending || !get().hasMoreTrending) {
@@ -59,7 +120,6 @@ const useFeedStore = create((set, get) => ({
         }
     },
 
-    // Fetch 'For You' feeds
     fetchForYouFeeds: async (limit) => {
         if (get().isFetchingForYou || !get().hasMoreForYou) {
             return; // Prevent concurrent calls and stop if no more feeds
@@ -83,8 +143,14 @@ const useFeedStore = create((set, get) => ({
             );
 
             if (newPosts.length > 0) {
+                const newFeeds = await newPosts.reduce((acc, crr) => {
+                    acc[crr.postDetails.id] = crr;
+                    return acc;
+                }, {});
+
                 set((state) => ({
-                    forYouFeeds: [...state.forYouFeeds, ...newPosts],
+                    // forYouFeeds: [...state.forYouFeeds, ...newPosts],
+                    feeds: { ...state.feeds, ...newFeeds },
                     forYouOffset: state.forYouOffset + limit,
                     seenPostIds: new Set([
                         ...state.seenPostIds,
@@ -99,15 +165,81 @@ const useFeedStore = create((set, get) => ({
                 set({ hasMoreForYou: false }); // No more 'for you' feeds available
             }
         } catch (err) {
-            set({ error: err });
+            set({ isFetchingForYou: false, error: err });
         } finally {
             set({ loadingForYou: false, isFetchingForYou: false });
         }
     },
 
+    fetchPosts: async (limit = 10) => {
+        if (get().isFetchingPosts || !get().hasMorePosts) {
+            return; // Prevent concurrent calls and stop if no more feeds
+        }
+
+        set({ isFetchingPosts: true, error: null });
+        try {
+            const userId = await SecureStore.getItemAsync(HEADERS_KEYS.USER_ID);
+            const response = await network.get(
+                generateQueryParams(
+                    replacePlaceholders(API_PATHS.getPosts, userId),
+                    {
+                        limit,
+                        offset: get().postOffset,
+                    }
+                )
+            );
+
+            const newPosts = response.filter(
+                (item) => !get().postIds.includes(item.id)
+            );
+
+            if (newPosts.length > 0) {
+                const newFeeds = await newPosts.reduce((acc, crr) => {
+                    acc[crr.id] = crr;
+                    return acc;
+                }, {});
+
+                set((state) => ({
+                    postIds: [
+                        ...state.postIds,
+                        ...newPosts.map((post) => post.id),
+                    ],
+                    feeds: { ...state.feeds, ...newFeeds },
+                    postOffset: state.postOffset + 1,
+                }));
+            } else {
+                set({ hasMorePosts: false });
+            }
+        } catch (err) {
+            set({ error: err });
+            ToastAndroid.showWithGravityAndOffset(
+                err.message,
+                ToastAndroid.LONG,
+                ToastAndroid.TOP,
+                25,
+                50
+            );
+        } finally {
+            set({ isFetchingPosts: false });
+        }
+    },
+
+    resetPosts: () => {
+        set({
+            postIds: [],
+            postOffset: 0,
+            hasMorePosts: true,
+        });
+    },
+
     // Reset feeds to initial state
     resetFeeds: () =>
         set({
+            postIds: [],
+            feeds: {},
+            postOffset: 0,
+            hasMorePosts: true,
+            updatingLikeId: null,
             trendingFeeds: [],
             forYouFeeds: [],
             trendingOffset: 0,

@@ -5,26 +5,11 @@ import useUserStore from "./useUserStore";
 
 const useActivityStore = create((set, get) => ({
     isPostingComment: false,
-    likes: {},
     comments: {},
     activeCommentPostId: null,
 
     setActiveCommentPostId: (postId) => {
         set({ activeCommentPostId: postId });
-    },
-
-    // Function to update likes count for a specific postId
-    updateLikes: (postId, count) => {
-        set((state) => ({
-            likes: {
-                ...state.likes,
-                [postId]: count,
-            },
-        }));
-    },
-
-    getLikesById: (postId) => {
-        return (state) => state.likes[postId] || null;
     },
 
     // Function to add a comment for the active postId

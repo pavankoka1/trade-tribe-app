@@ -76,51 +76,51 @@ const CommentsBottomSheet = ({ userId }) => {
 
     return (
         <Portal>
-            <KeyboardAvoidingView
+            {/* <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={{ flex: 1 }}
-            >
-                <View className="w-screen h-screen bg-[#161616] pt-2 px-4">
-                    <View className="absolute right-0 top-0 z-10">
-                        <TouchableOpacity
-                            onPress={() => {
-                                setActiveCommentPostId(null);
-                            }}
-                        >
-                            <View className="p-4">
-                                <CloseIcon />
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-
-                    <Text className="text-white text-2xl font-bold mb-4">
-                        Comments
-                    </Text>
-                    <View className="flex-1">
-                        {isFetchingComments || !comments ? (
-                            <View className="flex justify-center items-center flex-1">
-                                <ActivityIndicator size="small" />
-                            </View>
-                        ) : comments.length ? (
-                            <FlatList
-                                data={comments}
-                                renderItem={renderComment}
-                                keyExtractor={(item) => item.id.toString()}
-                                contentContainerStyle={{
-                                    paddingBottom: 20,
-                                    flexGrow: 1,
-                                }}
-                                showsVerticalScrollIndicator={false}
-                            />
-                        ) : (
-                            <Text className="text-[#B1B1B1] text-12 font-manrope my-auto text-center">
-                                No comments yet!
-                            </Text>
-                        )}
-                    </View>
-                    <CommentInput userId={userId} />
+            > */}
+            <View className="w-screen h-screen bg-[#161616] pt-2 pb-8 px-4">
+                <View className="absolute right-0 top-0 z-10">
+                    <TouchableOpacity
+                        onPress={() => {
+                            setActiveCommentPostId(null);
+                        }}
+                    >
+                        <View className="p-4">
+                            <CloseIcon />
+                        </View>
+                    </TouchableOpacity>
                 </View>
-            </KeyboardAvoidingView>
+
+                <Text className="text-white text-2xl font-bold mb-4">
+                    Comments
+                </Text>
+                <View className="flex-1">
+                    {isFetchingComments || !comments ? (
+                        <View className="flex justify-center items-center flex-1">
+                            <ActivityIndicator size="small" />
+                        </View>
+                    ) : comments.length ? (
+                        <FlatList
+                            data={comments}
+                            renderItem={renderComment}
+                            keyExtractor={(item) => item.id.toString()}
+                            contentContainerStyle={{
+                                paddingBottom: 20,
+                                flexGrow: 1,
+                            }}
+                            showsVerticalScrollIndicator={false}
+                        />
+                    ) : (
+                        <Text className="text-[#B1B1B1] text-12 font-manrope my-auto text-center">
+                            No comments yet!
+                        </Text>
+                    )}
+                </View>
+                <CommentInput userId={userId} />
+            </View>
+            {/* </KeyboardAvoidingView> */}
         </Portal>
     );
 };

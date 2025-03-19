@@ -53,7 +53,7 @@ function SettingsBottomSheet({ isOpen, onClose }) {
                 userBio: bio,
             })
             .then((res) => {
-                setUserDetails(res);
+                setUserDetails({ ...details, ...res });
                 setSettingsBottomSheet(false);
             })
             .finally(() => {
@@ -87,10 +87,12 @@ function SettingsBottomSheet({ isOpen, onClose }) {
         !activeImage?.publicUrl ||
         activeImage?.uploading;
 
+    if (!isOpen) return null;
+
     if (!Object.keys(details) || !activeImage || !activeImage.uri) {
         return (
             <View className="flex-1 justify-center items-center">
-                <ActivityIndicator size="large" />
+                <ActivityIndicator size="small" />
             </View>
         );
     }
