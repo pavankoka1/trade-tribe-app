@@ -4,6 +4,7 @@ import Header from "./Header";
 import Card from "./Card";
 import TabButton from "@/components/Tabs/TabButton";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import SmallcaseIntegration from "./SmallCaseIntegration";
 
 const Portfolio = ({ handleTabChange }) => {
     return (
@@ -46,6 +47,7 @@ const Portfolio = ({ handleTabChange }) => {
                     </Text>
                 </View>
             </View>
+            <SmallcaseIntegration />
         </View>
     );
 };
