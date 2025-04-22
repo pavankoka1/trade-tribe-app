@@ -1,67 +1,104 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text } from "react-native";
+import { View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
 import SmallcaseGateway from "react-native-smallcase-gateway";
-import jwtDecode from "jwt-decode";
+import * as SecureStore from "expo-secure-store";
+import getJwtToken from "@/utils/getJwtToken";
+import network from "@/network";
+import API_PATHS from "../../network/apis";
+import { HEADERS_KEYS } from "../../network/constants";
 
-const SmallcaseIntegration = () => {
-    const [sdkToken, setSdkToken] = useState(null);
-    const [smallcaseAuthId, setSmallcaseAuthId] = useState(
-        "TRX_8d97befddb10421d8a09aaa6b66c5c89"
-    );
-    const [error, setError] = useState(null);
+const SmallcaseIntegration = ({ onClose }) => {
     const [isInitialized, setIsInitialized] = useState(false);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // const fetchSdkToken = async () => {
-    //     try {
-    //         const response = await fetch("http://localhost:3000/getSdkToken"); // Replace with your backend URL
-    //         const data = await response.json();
-    //         setSdkToken(data.token);
-    //     } catch (err) {
-    //         console.error("Error fetching SDK token:", err);
-    //         setError("Failed to fetch SDK token");
-    //     }
-    // };
-
-    const initGatewaySession = useCallback(() => {
-        if (!sdkToken) return;
-
-        SmallcaseGateway.init(sdkToken)
-            .then((initResp) => {
-                console.log("Gateway session initialized:", initResp);
-                setIsInitialized(true);
-
-                // Decode the token to get smallcaseAuthId
-                const decodedToken = jwtDecode(sdkToken);
-                setSmallcaseAuthId(decodedToken.smallcaseAuthId); // Adjust based on your token structure
-            })
-            .catch((err) => {
-                console.error(
-                    "Error initializing gateway session:",
-                    err.userInfo
-                );
-                setError("Failed to initialize gateway session");
+    const configureSdk = async () => {
+        try {
+            await SmallcaseGateway.setConfigEnvironment({
+                isLeprechaun: false,
+                isAmoEnabled: true,
+                gatewayName: "wagmee",
+                environmentName: SmallcaseGateway.ENV.PROD,
+                brokerList: [],
             });
-    }, [sdkToken]);
+            await initGatewaySession();
+        } catch (err) {
+            console.error("Error configuring SDK:", err);
+            setError("Failed to configure SDK");
+            setLoading(false);
+        }
+    };
 
-    // useEffect(() => {
-    //     fetchSdkToken();
-    // }, []);
+    const initGatewaySession = useCallback(async () => {
+        const jwtToken = getJwtToken();
+        try {
+            await SmallcaseGateway.init(jwtToken);
+            setIsInitialized(true);
+            const res = await network.get(API_PATHS.getSmallcaseTransactionId);
+            await startTransaction(res.transactionId);
+        } catch (err) {
+            console.error("Error initializing gateway session:", err.userInfo);
+            setError("Failed to initialize gateway session");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    const startTransaction = useCallback(async (transactionId) => {
+        try {
+            const txnResponse = await SmallcaseGateway.triggerTransaction(
+                transactionId
+            );
+            const smallcaseAuthToken = JSON.parse(
+                txnResponse.data
+            ).smallcaseAuthToken;
+            await SecureStore.setItemAsync(
+                HEADERS_KEYS.SMALLCASE_AUTH_TOKEN,
+                smallcaseAuthToken
+            );
+        } catch (err) {
+            console.log("Transaction error:", err.userInfo);
+        }
+    }, []);
 
     useEffect(() => {
-        initGatewaySession();
-    }, [sdkToken]);
+        const checkAuthToken = async () => {
+            const token = await SecureStore.getItem(
+                HEADERS_KEYS.SMALLCASE_AUTH_TOKEN
+            );
+            if (!token) {
+                await configureSdk();
+            } else {
+                setLoading(false);
+                setIsInitialized(true);
+            }
+        };
+        checkAuthToken();
+    }, []);
 
     return (
-        <View>
+        <View className="flex-1 justify-center items-center relative bg-[#161616]">
+            {loading && (
+                <View className="absolute inset-0 bg-white opacity-75 flex justify-center items-center">
+                    <ActivityIndicator size="large" color="#0000ff" />
+                </View>
+            )}
             {isInitialized ? (
-                <Text>Gateway session initialized successfully!</Text>
+                <Text className="text-white">
+                    Gateway session initialized successfully!
+                </Text>
             ) : (
-                <Text>Initializing gateway session...</Text>
+                <Text className="text-white">
+                    Initializing gateway session...
+                </Text>
             )}
-            {smallcaseAuthId && (
-                <Text>Smallcase Auth ID: {smallcaseAuthId}</Text>
-            )}
-            {error && <Text>{error}</Text>}
+            {error && <Text className="text-red-500">{error}</Text>}
+            <TouchableOpacity
+                onPress={onClose}
+                className="absolute top-4 right-4"
+            >
+                <Text className="text-white">Close</Text>
+            </TouchableOpacity>
         </View>
     );
 };

@@ -1,12 +1,25 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import Header from "./Header";
 import Card from "./Card";
 import TabButton from "@/components/Tabs/TabButton";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import SmallcaseIntegration from "./SmallCaseIntegration";
+import { HEADERS_KEYS } from "../../network/constants";
+import * as SecureStore from "expo-secure-store";
 
 const Portfolio = ({ handleTabChange }) => {
+    const [isIntegrationVisible, setIntegrationVisible] = useState(false);
+
+    const handleConnectPortfolio = async () => {
+        const token = await SecureStore.getItem(
+            HEADERS_KEYS.SMALLCASE_AUTH_TOKEN
+        );
+        if (!token) {
+            setIntegrationVisible(true);
+        }
+    };
+
     return (
         <View className="flex-1 bg-[#161616]">
             <Header />
@@ -27,8 +40,11 @@ const Portfolio = ({ handleTabChange }) => {
                     Share your portfolio, inspire others, and help them{"\n"}
                     succeed just like you. It’s easy to start!
                 </Text>
-                <TouchableOpacity className="bg-primary-main rounded-full my-4 h-12 flex justify-center items-center w-full">
-                    <Text className="font-manrope-bold tetx-14 text-[#292929] leading-[20px]">
+                <TouchableOpacity
+                    className="bg-primary-main rounded-full my-4 h-12 flex justify-center items-center w-full"
+                    onPress={handleConnectPortfolio}
+                >
+                    <Text className="font-manrope-bold text-14 text-[#292929] leading-[20px]">
                         Link Your Broker Account
                     </Text>
                 </TouchableOpacity>
@@ -47,7 +63,11 @@ const Portfolio = ({ handleTabChange }) => {
                     </Text>
                 </View>
             </View>
-            <SmallcaseIntegration />
+            {isIntegrationVisible && (
+                <SmallcaseIntegration
+                    onClose={() => setIntegrationVisible(false)}
+                />
+            )}
         </View>
     );
 };
